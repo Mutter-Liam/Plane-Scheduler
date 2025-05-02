@@ -11,6 +11,7 @@
 #include <iostream> /* for cout */
 #include <list>
 #include <string>
+#include <boundedBuffer.h>
 
 using namespace std;
 
@@ -60,6 +61,7 @@ class Airport {
 
   pthread_mutex_t airport_lock;
   struct Runway *runways;
+  BoundedBuffer<Runway> available_runways;
 };
 
 #endif
