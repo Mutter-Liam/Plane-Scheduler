@@ -43,8 +43,8 @@ class Airport {
   int num_takeoffs;
   int num_landings;
   int time;
-  int *completion_times;
-  int *response_times;
+  list<int> completion_times;
+  list<int> response_times;
 
  public:
   Airport(int N);
@@ -64,7 +64,7 @@ class Airport {
 
   pthread_mutex_t airport_lock;
   struct Runway *runways;
-  BoundedBuffer<Runway> available_runways;
+  BoundedBuffer<struct Runway *> available_runways;
 };
 
 #endif

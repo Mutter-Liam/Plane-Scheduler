@@ -1,19 +1,18 @@
-#include <bank.h>
-
+#include <airport.h>
+#include <boundedBuffer.h>
 /**
  * @brief prints account information
  */
-void Bank::print_account() {
+void Airport::print_runway() {
   for (int i = 0; i < num; i++) {
-    pthread_mutex_lock(&accounts[i].lock);
-    cout << "ID# " << accounts[i].accountID << " | " << accounts[i].balance
-         << endl;
-    pthread_mutex_unlock(&accounts[i].lock);
+    pthread_mutex_lock(&runways[i].lock);
+    cout << "ID# " << runways[i].runwayID << " | " << "takeoffs: " << runways[i].takeoffs << " landings: " << runways[i].landings<< endl;
+    pthread_mutex_unlock(&runways[i].lock);
   }
 
-  pthread_mutex_lock(&bank_lock);
-  cout << "Success: " << num_succ << " Fails: " << num_fail << endl;
-  pthread_mutex_unlock(&bank_lock);
+  pthread_mutex_lock(&airport_lock);
+  cout << "Airport takeoffs: " << num_takeoffs << " Airport landings: " << num_landings << endl;
+  pthread_mutex_unlock(&airport_lock);
 }
 
 /**
@@ -22,11 +21,11 @@ void Bank::print_account() {
  *
  * @param message
  */
-void Bank::recordFail(string message) {
-  pthread_mutex_lock(&bank_lock);
+void Airport::recordLanding(string message) {
+  pthread_mutex_lock(&airport_lock);
   cout << message << endl;
-  num_fail++;
-  pthread_mutex_unlock(&bank_lock);
+  num_landings++;
+  pthread_mutex_unlock(&airport_lock);
 }
 
 /**
@@ -35,11 +34,11 @@ void Bank::recordFail(string message) {
  *
  * @param message
  */
-void Bank::recordSucc(string message) {
-  pthread_mutex_lock(&bank_lock);
+void Airport::recordTakeoff(string message) {
+  pthread_mutex_lock(&airport_lock);
   cout << message << endl;
-  num_succ++;
-  pthread_mutex_unlock(&bank_lock);
+  num_takeoffs++;
+  pthread_mutex_unlock(&airport_lock);
 }
 
 /***************************************************
@@ -59,19 +58,24 @@ void Bank::recordSucc(string message) {
  *
  * @param N The number of accounts to be created in the bank.
  */
-Bank::Bank(int N) {
-  pthread_mutex_init(&bank_lock, NULL);
-  accounts = new Account[N];
-  for (int i = 0; i < N; i++) {
-    accounts[i].accountID = i;
-    accounts[i].balance = 0;
-    pthread_mutex_init(&accounts[i].lock, NULL);
-  }
+Airport::Airport(int N)
+    : available_runways(N)
+{
+    pthread_mutex_init(&airport_lock, NULL);
+    runways = new Runway[N];
+    for (int i = 0; i < N; i++) {
+        runways[i].runwayID = i;
+        runways[i].takeoffs = 0;
+        runways[i].landings = 0;
+        pthread_mutex_init(&runways[i].lock, NULL);
+    }
 
-  num = N;
-  num_fail = 0;
-  num_succ = 0;
+    num = N;
+    num_takeoffs = 0;
+    num_landings = 0;
+    time = 0;
 }
+
 
 /**
  * @brief Destroy the Bank object.
@@ -86,13 +90,13 @@ Bank::Bank(int N) {
  * - This destructor is automatically called when a Bank object goes out of
  * scope or is explicitly deleted.
  */
-Bank::~Bank() {
-  pthread_mutex_destroy(&bank_lock);
-  for (int i = 0; i < num; i++){
-    Account* acc = &accounts[i];
-    pthread_mutex_t* l = &acc->lock;
-    pthread_mutex_destroy(l);
+
+ Airport::~Airport() {
+  for (int i = 0; i < num; i++) {
+    pthread_mutex_destroy(&runways[i].lock);
   }
+  pthread_mutex_destroy(&airport_lock);
+  delete[] runways;
 }
 
 /**
@@ -110,7 +114,7 @@ Bank::~Bank() {
  * @param amount The amount to deposit.
  * @return 0 on success.
  */
-int Bank::deposit(int workerID, int ledgerID, int accountID, int amount) {
+int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway) {
 
   Account* deposit_account = &accounts[accountID];
   pthread_mutex_t* account_lock = &deposit_account->lock;
@@ -152,7 +156,7 @@ int Bank::deposit(int workerID, int ledgerID, int accountID, int amount) {
  * @param amount The amount to withdraw.
  * @return 0 on success, -1 on failure.
  */
-int Bank::withdraw(int workerID, int ledgerID, int accountID, int amount) {
+int Airport::landing(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway) {
 
   Account* withdraw_account = &accounts[accountID];
   pthread_mutex_t* account_lock = &withdraw_account->lock;
@@ -182,73 +186,4 @@ int Bank::withdraw(int workerID, int ledgerID, int accountID, int amount) {
 
     return -1;
   }
-}
-
-/**
- * @brief Transfer funds from one account to another.
- *
- * @details
- * This function transfers the specified amount from the source account to the
- * destination account. It ensures that there is enough money in the source
- * account for the transfer and carefully handles the locking order to prevent
- * deadlock.
- *
- * @attention
- * - The function requires careful consideration of the locking order to prevent
- *     deadlock.
- * - It ensures that there is enough money in the source account before
- *     performing the transfer.
- * - On success it logs: `[ SUCCESS ] TID: {workerID}, LID: {ledgerID}, Acc:
- *      {accountID} TRANSFER ${amount} TO Acc: {destID}`
- * - On faiure it logs: `[ ERROR ] TID: {workerID}, LID: {ledgerID}, Acc:
- *      {accountID} TRANSFER ${amount} TO Acc: {destID}`
- * - Transfer from srcID = n to destID = n is a failure
- *
- * @param workerID The ID of the worker (thread).
- * @param ledgerID The ID of the ledger entry.
- * @param srcID The account ID to transfer money from.
- * @param destID The account ID to receive the money.
- * @param amount The amount to transfer.
- * @return 0 on success, -1 on error.
- */
-int Bank::transfer(int workerID, int ledgerID, int srcID, int destID,
-                   unsigned int amount) {
-
-  if (srcID == destID){ 
-    recordFail(TRANSFER_MSG(ERR, workerID, ledgerID, srcID, destID, amount));
-    return -1;
-  }
-  Account* withdraw_account = &accounts[srcID];
-  Account* deposit_account = &accounts[destID];
-  bool failed;
-  pthread_mutex_t* withdraw_lock = &withdraw_account->lock;
-  pthread_mutex_t* deposit_lock = &deposit_account->lock;
-  if (srcID < destID){
-    pthread_mutex_lock(withdraw_lock);
-    pthread_mutex_lock(deposit_lock);
-  }
-  else{
-    pthread_mutex_lock(deposit_lock);  
-    pthread_mutex_lock(withdraw_lock);
-  }
-  long withdraw_balance = withdraw_account->balance;
-  if(withdraw_balance - amount >= 0){
-    withdraw_account->balance -= amount;
-    deposit_account->balance += amount;
-    recordSucc(TRANSFER_MSG(SUCC, workerID, ledgerID, srcID, destID, amount));
-    failed = false;
-  }
-  else{
-    recordFail(TRANSFER_MSG(ERR, workerID, ledgerID, srcID, destID, amount));
-    failed = true;
-  }
-  if (srcID < destID) {
-    pthread_mutex_unlock(deposit_lock);
-    pthread_mutex_unlock(withdraw_lock);
-  } else {
-    pthread_mutex_unlock(withdraw_lock);
-    pthread_mutex_unlock(deposit_lock);
-  }
-
-  return (failed) ? -1 : 0;
 }

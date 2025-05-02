@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <iostream>
 
-struct Ledger;
+struct Runway;
+struct Flight;
 using namespace std;
 
 template <typename T>

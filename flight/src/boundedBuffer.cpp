@@ -3,7 +3,8 @@
 /**
  * DO NOT DELETE
  */
-template class BoundedBuffer<Ledger*>;
+template class BoundedBuffer<Flight*>;
+template class BoundedBuffer<Runway*>;
 template class BoundedBuffer<int>;
 
 /**
