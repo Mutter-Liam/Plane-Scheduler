@@ -42,13 +42,16 @@ class Airport {
   int num;
   int num_takeoffs;
   int num_landings;
+  int time;
+  int *completion_times;
+  int *response_times;
 
  public:
   Airport(int N);
   ~Airport();  // destructor
 
-  int takeoff(int workerID, int ledgerID, int accountID, int amount);
-  int landing(int workerID, int ledgerID, int accountID, int amount);
+  int takeoff(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway);
+  int landing(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway);
 
 
   // helper functions
