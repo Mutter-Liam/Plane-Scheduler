@@ -37,6 +37,33 @@ int con_items; // total number of items consumed
  *
  */
 void InitBank(int p, int c, int size, char *filename) {
+  bank = new Bank(10);
+  bb = new BoundedBuffer<struct Ledger*>(size);
+  bank->print_account();
+  if(load_ledger(filename) != 0){
+    delete bank;
+    delete bb;  
+    exit(0);
+  }
+  pthread_t p_threads[p];
+  pthread_t c_threads[c];
+  for (int i = 0; i < p; ++i) {
+    pthread_create(&p_threads[i], NULL, producer, NULL);
+  }
+  int *wids = new int[c];
+  for (int i = 0; i < c; ++i) {
+    wids[i] = i;
+    pthread_create(&c_threads[i], NULL, consumer, &wids[i]);
+  }
+  for (int i = 0; i < p; ++i) {
+    pthread_join(p_threads[i], NULL);
+  }
+  
+  for (int i = 0; i < c; ++i) {
+    pthread_join(c_threads[i], NULL);
+  }
+  bank->print_account();
+  delete wids;
 }
 
 /**
@@ -62,6 +89,22 @@ void InitBank(int p, int c, int size, char *filename) {
  */
 int load_ledger(char *filename) {
   int ledgerID = 0;
+
+  ifstream input(filename);
+  if(!input){cout << "Couldn't read file\n"; return -1;}
+  int account, other, amount , mode;
+  int count = 0;
+  while (input >> account >> other >> amount >> mode){
+    Ledger* ledg = new Ledger();
+    ledg->acc = account;
+    ledg->other = other;
+    ledg->amount = amount;
+    ledg->mode = mode;
+    ledg->ledgerID = count++;
+    ledger.push_back(ledg);
+  }
+  max_items = count;
+  return 0;
 }
 
 /**
@@ -87,6 +130,33 @@ int load_ledger(char *filename) {
  * @return NULL after completing ledger processing.
  */
 void *consumer(void *workerID) {
+  
+  while (true){
+    Ledger* item;
+    pthread_mutex_lock(&ledger_lock);
+    if (max_items <= con_items){
+      pthread_mutex_unlock(&ledger_lock);
+      return NULL;
+    }
+    con_items++;
+
+    
+
+    pthread_mutex_unlock(&ledger_lock);
+    item = bb->remove();
+    if (item->mode == 0){
+      bank->deposit(*(int *)workerID, item->ledgerID, item->acc, item->amount);
+    }
+    else if (item->mode == 1){
+      bank->withdraw(*(int *)workerID, item->ledgerID, item->acc, item->amount);
+    }
+    else if (item->mode == 2){
+      bank->transfer(*(int *)workerID, item->ledgerID, item->acc, item->other, item->amount);
+    }
+    else{
+      return NULL;
+    }
+  }
 }
 
 /**
@@ -109,6 +179,23 @@ void *consumer(void *workerID) {
  * @note The function should be thread-safe and ensure
  * that the ledger is empty after all entries have been processed.
  */
-void* producer(void *) {
-  // TODO: producer thread, see instruction for implementation
+ void* producer(void *) {
+  
+  while (true) {
+    Ledger* next = nullptr;
+
+    pthread_mutex_lock(&ledger_lock);
+    if (!ledger.empty()) {
+      next = ledger.front();
+      ledger.pop_front();
+    } else {
+      pthread_mutex_unlock(&ledger_lock);
+      return NULL;
+    }
+    pthread_mutex_unlock(&ledger_lock);
+
+    bb->append(next); 
+  }
+
+  return NULL;
 }

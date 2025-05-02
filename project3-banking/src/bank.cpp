@@ -61,6 +61,16 @@ void Bank::recordSucc(string message) {
  */
 Bank::Bank(int N) {
   pthread_mutex_init(&bank_lock, NULL);
+  accounts = new Account[N];
+  for (int i = 0; i < N; i++) {
+    accounts[i].accountID = i;
+    accounts[i].balance = 0;
+    pthread_mutex_init(&accounts[i].lock, NULL);
+  }
+
+  num = N;
+  num_fail = 0;
+  num_succ = 0;
 }
 
 /**
@@ -77,6 +87,12 @@ Bank::Bank(int N) {
  * scope or is explicitly deleted.
  */
 Bank::~Bank() {
+  pthread_mutex_destroy(&bank_lock);
+  for (int i = 0; i < num; i++){
+    Account* acc = &accounts[i];
+    pthread_mutex_t* l = &acc->lock;
+    pthread_mutex_destroy(l);
+  }
 }
 
 /**
@@ -95,6 +111,21 @@ Bank::~Bank() {
  * @return 0 on success.
  */
 int Bank::deposit(int workerID, int ledgerID, int accountID, int amount) {
+
+  Account* deposit_account = &accounts[accountID];
+  pthread_mutex_t* account_lock = &deposit_account->lock;
+
+  pthread_mutex_lock(account_lock);
+  if (deposit_account->balance + amount < 0){
+    recordFail(DEPOSIT_MSG(SUCC, workerID, ledgerID, accountID, amount));
+    pthread_mutex_unlock(account_lock);
+    return -1;
+  }
+  deposit_account->balance += amount;
+  pthread_mutex_unlock(account_lock);
+  string log = DEPOSIT_MSG(SUCC, workerID, ledgerID, accountID, amount);
+  recordSucc(log);
+
   return 0;
 }
 
@@ -122,7 +153,35 @@ int Bank::deposit(int workerID, int ledgerID, int accountID, int amount) {
  * @return 0 on success, -1 on failure.
  */
 int Bank::withdraw(int workerID, int ledgerID, int accountID, int amount) {
-  return 0;
+
+  Account* withdraw_account = &accounts[accountID];
+  pthread_mutex_t* account_lock = &withdraw_account->lock;
+  long balance;
+  string log;
+  bool failure;
+
+  pthread_mutex_lock(account_lock);
+  balance = withdraw_account->balance;
+  if (balance - amount >= 0){
+    withdraw_account->balance -= amount;
+    failure = false;
+  }
+  else{
+    failure = true;
+  }
+  pthread_mutex_unlock(account_lock);
+  if (!failure){
+    log = WITHDRAW_MSG(SUCC, workerID, ledgerID, accountID, amount);
+    recordSucc(log);
+
+    return 0;
+  }
+  else{
+    log = WITHDRAW_MSG(ERR, workerID, ledgerID, accountID, amount);
+    recordFail(log);
+
+    return -1;
+  }
 }
 
 /**
@@ -154,5 +213,42 @@ int Bank::withdraw(int workerID, int ledgerID, int accountID, int amount) {
  */
 int Bank::transfer(int workerID, int ledgerID, int srcID, int destID,
                    unsigned int amount) {
-  return 0;
+
+  if (srcID == destID){ 
+    recordFail(TRANSFER_MSG(ERR, workerID, ledgerID, srcID, destID, amount));
+    return -1;
+  }
+  Account* withdraw_account = &accounts[srcID];
+  Account* deposit_account = &accounts[destID];
+  bool failed;
+  pthread_mutex_t* withdraw_lock = &withdraw_account->lock;
+  pthread_mutex_t* deposit_lock = &deposit_account->lock;
+  if (srcID < destID){
+    pthread_mutex_lock(withdraw_lock);
+    pthread_mutex_lock(deposit_lock);
+  }
+  else{
+    pthread_mutex_lock(deposit_lock);  
+    pthread_mutex_lock(withdraw_lock);
+  }
+  long withdraw_balance = withdraw_account->balance;
+  if(withdraw_balance - amount >= 0){
+    withdraw_account->balance -= amount;
+    deposit_account->balance += amount;
+    recordSucc(TRANSFER_MSG(SUCC, workerID, ledgerID, srcID, destID, amount));
+    failed = false;
+  }
+  else{
+    recordFail(TRANSFER_MSG(ERR, workerID, ledgerID, srcID, destID, amount));
+    failed = true;
+  }
+  if (srcID < destID) {
+    pthread_mutex_unlock(deposit_lock);
+    pthread_mutex_unlock(withdraw_lock);
+  } else {
+    pthread_mutex_unlock(withdraw_lock);
+    pthread_mutex_unlock(deposit_lock);
+  }
+
+  return (failed) ? -1 : 0;
 }
