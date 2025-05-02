@@ -15,13 +15,7 @@
 
 using namespace std;
 
-#define TAKEOFF_MSG(level, w, l, a, m)                                 \
-  level + "TID: " + std::to_string(w) + ", LID: " + std::to_string(l) + \
-      ", Acc: " + std::to_string(a) + " DEPOSIT $" + std::to_string(m)
 
-#define LANDING_MSG(level, w, l, a, m)                                 \
-  level + "TID: " + std::to_string(w) + ", LID: " + std::to_string(l) + \
-      ", Acc: " + std::to_string(a) + " WITHDRAW $" + std::to_string(m)
 
 using namespace std;
 
@@ -29,6 +23,14 @@ using namespace std;
   std::string { "[ TAKEOFF ] " }
 #define LANDING \
   std::string { "[ LANDING ] " }
+
+#define TAKEOFF_MSG(tid, flightID ,time, runway, fuel)                              \
+  TAKEOFF + "TID: " + std::to_string(tid) + "F;ight: " + std::to_string(flightID) + ", Time: " + std::to_string(time) + \
+      ", Runway: " + std::to_string(runway) + " Fuel: " + std::to_string(fuel) + "%"
+
+#define LANDING_MSG(tid, flightID ,time, runway, fuel)                               \
+  LANDING + "TID: " + std::to_string(tid) + "F;ight: " + std::to_string(flightID) + ", Time: " + std::to_string(time) + \
+      ", Runway: " + std::to_string(runway) + " Fuel: " + std::to_string(fuel) + "%"
 
 struct Runway {
   unsigned int runwayID;
@@ -43,8 +45,8 @@ class Airport {
   int num_takeoffs;
   int num_landings;
   int time;
-  list<int> completion_times;
-  list<int> response_times;
+  int *completion_times;
+  int *response_times;
 
  public:
   Airport(int N);
@@ -64,7 +66,7 @@ class Airport {
 
   pthread_mutex_t airport_lock;
   struct Runway *runways;
-  BoundedBuffer<struct Runway *> available_runways;
+  BoundedBuffer<struct *Runway> available_runways;
 };
 
 #endif
