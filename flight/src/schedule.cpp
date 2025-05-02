@@ -1,13 +1,13 @@
-#include <ledger.h>
+#include <schedule.h>
 
 using namespace std;
 
 
-pthread_mutex_t ledger_lock;
+pthread_mutex_t schedule_lock;
 
-list<struct Ledger *> ledger;
-BoundedBuffer<struct Ledger*> *bb;
-Bank *bank;
+list<struct Schedule *> schedule;
+BoundedBuffer<struct Schedule*> *bb;
+Airport *airport;
 int max_items; // total number of items in the ledger
 int con_items; // total number of items consumed
 
@@ -36,12 +36,12 @@ int con_items; // total number of items consumed
  * @return void
  *
  */
-void InitBank(int p, int c, int size, char *filename) {
-  bank = new Bank(10);
-  bb = new BoundedBuffer<struct Ledger*>(size);
-  bank->print_account();
+void InitAirport(int p, int c, int size, char *filename) {
+  airport = new Airport(2);
+  bb = new BoundedBuffer<struct Schedule*>(size);
+  airport->print_runway();
   if(load_ledger(filename) != 0){
-    delete bank;
+    delete airport;
     delete bb;  
     exit(0);
   }
@@ -62,7 +62,7 @@ void InitBank(int p, int c, int size, char *filename) {
   for (int i = 0; i < c; ++i) {
     pthread_join(c_threads[i], NULL);
   }
-  bank->print_account();
+  airport->print_runway();
   delete wids;
 }
 
@@ -88,20 +88,19 @@ void InitBank(int p, int c, int size, char *filename) {
  * @return 0 on success, -1 on failure to open the file.
  */
 int load_ledger(char *filename) {
-  int ledgerID = 0;
 
   ifstream input(filename);
   if(!input){cout << "Couldn't read file\n"; return -1;}
-  int account, other, amount , mode;
+  int Flightid, FuelPercent, Time, TimeSpentOnRunway, FlightType, mode;
   int count = 0;
-  while (input >> account >> other >> amount >> mode){
-    Ledger* ledg = new Ledger();
-    ledg->acc = account;
-    ledg->other = other;
-    ledg->amount = amount;
-    ledg->mode = mode;
-    ledg->ledgerID = count++;
-    ledger.push_back(ledg);
+  while (input >> Flightid >> FuelPercent >> Time >> TimeSpentOnRunway >> mode){
+    Schedule* sched = new Schedule();
+    sched->flightID = Flightid;
+    sched->fuelPercent = FuelPercent;
+    sched->scheduledTime = Time;
+    sched->timeSpentOnRunway = TimeSpentOnRunway;
+    sched->mode = mode;
+    schedule.push_back(sched);
   }
   max_items = count;
   return 0;
@@ -132,26 +131,23 @@ int load_ledger(char *filename) {
 void *consumer(void *workerID) {
   
   while (true){
-    Ledger* item;
-    pthread_mutex_lock(&ledger_lock);
+    Schedule* item;
+    pthread_mutex_lock(&schedule_lock);
     if (max_items <= con_items){
-      pthread_mutex_unlock(&ledger_lock);
+      pthread_mutex_unlock(&schedule_lock);
       return NULL;
     }
     con_items++;
 
     
 
-    pthread_mutex_unlock(&ledger_lock);
+    pthread_mutex_unlock(&schedule_lock);
     item = bb->remove();
     if (item->mode == 0){
-      bank->deposit(*(int *)workerID, item->ledgerID, item->acc, item->amount);
+      airport->takeoff(*(int *)workerID, item->flightID, item->fuelPercent, item->scheduledTime, item->timeSpentOnRunway);
     }
     else if (item->mode == 1){
-      bank->withdraw(*(int *)workerID, item->ledgerID, item->acc, item->amount);
-    }
-    else if (item->mode == 2){
-      bank->transfer(*(int *)workerID, item->ledgerID, item->acc, item->other, item->amount);
+      airport->landing(*(int *)workerID, item->flightID, item->fuelPercent, item->scheduledTime, item->timeSpentOnRunway);
     }
     else{
       return NULL;
@@ -164,7 +160,7 @@ void *consumer(void *workerID) {
  *
  * This function acts as the producer. It repeatedly removes ledger
  * entries from a shared ledger container and appends them to a bounded buffer for further processing.
- * The function employs a mutex (ledger_lock) to ensure exclusive access to the shared ledger while
+ * The function employs a mutex (schedule_lock) to ensure exclusive access to the shared ledger while
  * checking and modifying its contents.
  *
  * @param[in] unused A pointer to any data (unused in this implementation).
@@ -182,17 +178,17 @@ void *consumer(void *workerID) {
  void* producer(void *) {
   
   while (true) {
-    Ledger* next = nullptr;
+    Schedule* next = nullptr;
 
-    pthread_mutex_lock(&ledger_lock);
-    if (!ledger.empty()) {
-      next = ledger.front();
-      ledger.pop_front();
+    pthread_mutex_lock(&schedule_lock);
+    if (!schedule.empty()) {
+      next = schedule.front();
+      schedule.pop_front();
     } else {
-      pthread_mutex_unlock(&ledger_lock);
+      pthread_mutex_unlock(&schedule_lock);
       return NULL;
     }
-    pthread_mutex_unlock(&ledger_lock);
+    pthread_mutex_unlock(&schedule_lock);
 
     bb->append(next); 
   }
