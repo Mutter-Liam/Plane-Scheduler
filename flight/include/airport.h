@@ -1,5 +1,5 @@
-#ifndef _BANK_H
-#define _BANK_H
+#ifndef _AIRPORT_H
+#define _AIRPORT_H
 
 #include <assert.h> /* for assert */
 #include <pthread.h>
