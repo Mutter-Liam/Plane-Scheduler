@@ -21,46 +21,39 @@
 
 using namespace std;
 
-Bank *bank_t;
+Airport *airport_t;
 sem_t glock;
 
 // test correct init accounts and counts
-TEST(BankTest, TestBankConstructor) {
-  bank_t = new Bank(10);
+TEST(AirportTest, TestAirportConstructor) {
+  airport_t = new Airport(10);
 
   EXPECT_EQ(bank_t->getNum(), 10)
-      << "Make sure to initialize the account balance to 0";
-  EXPECT_EQ(bank_t->getNumSucc(), 0) << "Make sure to initialize num_succ";
-  EXPECT_EQ(bank_t->getNumFail(), 0) << "Make sure to initialize num_fail";
+      << "Make sure to initialize runways to N";
+  EXPECT_EQ(bank_t->getNumTakeoffs(), 0) << "Make sure to initialize num_takeoffs";
+  EXPECT_EQ(bank_t->getNumLanding(), 0) << "Make sure to initialize num_landing";
   delete bank_t;
 }
 
 // make sure you pass this test case
-TEST(BankTest, TestLogs) {
+TEST(Airport, TestLogs) {
   // expected logs ex
-  string logs[5]{"[ SUCCESS ] TID: 0, LID: 0, Acc: 1 DEPOSIT $100",
-                 "[ SUCCESS ] TID: 0, LID: 1, Acc: 1 WITHDRAW $50",
-                 "[ SUCCESS ] TID: 0, LID: 2, Acc: 1 TRANSFER $10 TO Acc: 0",
-                 "[ FAIL ] TID: 0, LID: 3, Acc: 3 WITHDRAW $100",
-                 "[ FAIL ] TID: 0, LID: 4, Acc: 6 TRANSFER $200 TO Acc: 7"};
+  string logs[5]{LANDING_MSG(0, 1, 0, 1, 80),
+                 TAKEOFF_MSG(0, 2, 0, 2, 70,
+                 LANDING_MSG(0, 3, 10, 1, 50))};
 
   int i = 0;
-  bank_t = new Bank(10);
+  airport_t = new Airport(2);
 
   // capture out
   stringstream output;
   streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
 
-  // success msgs
-  bank_t->deposit(0, 0, 1, 100);
-  bank_t->withdraw(0, 1, 1, 50);
-  bank_t->transfer(0, 2, 1, 0, 10);
-
-  // fail msgs
-  bank_t->withdraw(0, 3, 3, 100);
-  bank_t->transfer(0, 4, 6, 7, 200);
-
+  airport_t.landing(0, 1, 90, 0, 10);
+  airport_t.takeoff(0, 2, 90, 0, 20);
+  airport_t.landing(0, 3, 90, 0, 30);
+  
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 
   // compare the logs
@@ -69,8 +62,9 @@ TEST(BankTest, TestLogs) {
     EXPECT_EQ(line, logs[i++]) << "Your log msg did not match the expected msg";
   }
 
-  EXPECT_EQ(i, 5) << "There should be 5 lines in the log";
+  EXPECT_EQ(i, 3) << "There should be 5 lines in the log";
 }
+
 
 TEST(PCTest, Test1) {
   BoundedBuffer<int> *BB = new BoundedBuffer<int>(5);
