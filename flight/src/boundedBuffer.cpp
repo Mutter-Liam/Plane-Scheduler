@@ -38,13 +38,15 @@ template class BoundedBuffer<int>;
 template <typename T>
 BoundedBuffer<T>::BoundedBuffer(int N) {
   // TODO: constructor to initiliaze all the varibales declared in
-
-  buffer = new T[N];
-
+  buffer = new T[N];//allocate memory for buffer
+  
+  //set up internal state
   buffer_size = N;
   buffer_cnt = 0;
   buffer_first = 0;
   buffer_last = 0;
+
+  //set up thread sync things
   pthread_mutex_init(&buffer_lock, NULL);
   pthread_cond_init(&buffer_not_full, NULL);
   pthread_cond_init(&buffer_not_empty, NULL);
@@ -62,10 +64,11 @@ BoundedBuffer<T>::BoundedBuffer(int N) {
 template <typename T>
 BoundedBuffer<T>::~BoundedBuffer() {
   // TODO: destructor to clean up anything necessary
-  free(buffer);
   pthread_mutex_destroy(&buffer_lock);
   pthread_cond_destroy(&buffer_not_full);
   pthread_cond_destroy(&buffer_not_empty);
+
+  delete[] buffer;
 }
 
 /**
@@ -90,17 +93,14 @@ BoundedBuffer<T>::~BoundedBuffer() {
 template <typename T>
 void BoundedBuffer<T>::append(T data) {
   // TODO: append a data item to the circular buffer
-
   pthread_mutex_lock(&buffer_lock);
-  while (buffer_cnt >= buffer_size){
+  while (buffer_cnt == buffer_size) {//make sure buffer not full
     pthread_cond_wait(&buffer_not_full, &buffer_lock);
   }
-
-  buffer[buffer_last] = data;
-  buffer_last = (buffer_last + 1) % buffer_size;
+  buffer[buffer_last] = data;//add new data
+  buffer_last = (buffer_last+1) % buffer_size;//circular
   buffer_cnt++;
-  pthread_cond_signal(&buffer_not_empty);
-
+  pthread_cond_signal(&buffer_not_empty);//added something new -> signal buffer not empty
   pthread_mutex_unlock(&buffer_lock);
 }
 
@@ -120,19 +120,16 @@ void BoundedBuffer<T>::append(T data) {
 template <typename T>
 T BoundedBuffer<T>::remove() {
   // TODO: remove and return a data item from the circular buffer
-
-  T first;
   pthread_mutex_lock(&buffer_lock);
-  while (buffer_cnt == 0){
+  while (buffer_cnt == 0) {//make sure buffer not empty
     pthread_cond_wait(&buffer_not_empty, &buffer_lock);
   }
-  first = buffer[buffer_first];
-  buffer_first = (buffer_first + 1) % buffer_size;
+  T removed = buffer[buffer_first];//remove from the front of the buffer
+  buffer_first = (buffer_first+1) % buffer_size;//circular;
   buffer_cnt--;
-  pthread_cond_signal(&buffer_not_full);
+  pthread_cond_signal(&buffer_not_full);//removed something -> signal buffer not full
   pthread_mutex_unlock(&buffer_lock);
-
-  return first;
+  return removed;
 }
 
 /**
@@ -145,5 +142,8 @@ T BoundedBuffer<T>::remove() {
 template <typename T>
 bool BoundedBuffer<T>::isEmpty() {
   // TODO: check is the buffer is empty
-  return buffer_cnt == 0;
+  pthread_mutex_lock(&buffer_lock);
+  bool b = (buffer_cnt == 0);
+  pthread_mutex_unlock(&buffer_lock);
+  return b;
 }
