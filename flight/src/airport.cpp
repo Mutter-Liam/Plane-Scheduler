@@ -62,6 +62,7 @@ Airport::Airport(int N)
     : available_runways(N)
 {
     pthread_mutex_init(&airport_lock, NULL);
+    pthread_cond_init(&runway_available_cond, NULL);
     runways = new Runway[N];
     for (int i = 0; i < N; i++) {
         runways[i].runwayID = i;
@@ -73,7 +74,6 @@ Airport::Airport(int N)
     num = N;
     num_takeoffs = 0;
     num_landings = 0;
-    time = 0;
 }
 
 
@@ -96,6 +96,7 @@ Airport::Airport(int N)
     pthread_mutex_destroy(&runways[i].lock);
   }
   pthread_mutex_destroy(&airport_lock);
+  pthread_cond_destroy(&runway_available_cond);
   delete[] runways;
 }
 
@@ -116,19 +117,30 @@ Airport::Airport(int N)
  */
 int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway) {
 
-  Account* deposit_account = &accounts[accountID];
-  pthread_mutex_t* account_lock = &deposit_account->lock;
-
-  pthread_mutex_lock(account_lock);
-  if (deposit_account->balance + amount < 0){
-    recordFail(DEPOSIT_MSG(SUCC, workerID, ledgerID, accountID, amount));
-    pthread_mutex_unlock(account_lock);
-    return -1;
+  Runway *chosen_runway = nullptr;
+  int runwayID = -1;
+  pthread_mutex_lock(&airport_lock);
+  while (true) {
+    for (int i = 0; i < num; i++) {
+      if (pthread_mutex_trylock(&runways[i].lock) == 0) { //wait till runway available
+        chosen_runway = &runways[i];
+        runwayID = i;
+        break;
+      } 
+    }
+    if (chosen_runway) {
+      break;
+    }
+    pthread_cond_wait(&runway_available_cond, &airport_lock);//signal wait for runway
   }
-  deposit_account->balance += amount;
-  pthread_mutex_unlock(account_lock);
-  string log = DEPOSIT_MSG(SUCC, workerID, ledgerID, accountID, amount);
-  recordSucc(log);
+  pthread_mutex_unlock(&airport_lock);
+  recordTakeoff(TAKEOFF_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage));
+
+  //unlock runway and signal waiting flights
+  pthread_mutex_unlock(&chosen_runway->lock);
+  pthread_mutex_lock(&airport_lock);
+  pthread_cond_signal(&runway_available_cond);
+  pthread_mutex_unlock(&airport_lock);
 
   return 0;
 }
@@ -158,32 +170,30 @@ int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int schedul
  */
 int Airport::landing(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway) {
 
-  Account* withdraw_account = &accounts[accountID];
-  pthread_mutex_t* account_lock = &withdraw_account->lock;
-  long balance;
-  string log;
-  bool failure;
+  Runway *chosen_runway = nullptr;
+  int runwayID = -1;
+  pthread_mutex_lock(&airport_lock);
+  while (true) {
+    for (int i = 0; i < num; i++) {
+      if (pthread_mutex_trylock(&runways[i].lock) == 0) { //wait till runway available
+        chosen_runway = &runways[i];
+        runwayID = i;
+        break;
+      } 
+    }
+    if (chosen_runway) {
+      break;
+    }
+    pthread_cond_wait(&runway_available_cond, &airport_lock);//signal wait for runway
+  }
+  pthread_mutex_unlock(&airport_lock);
+  recordLanding(LANDING_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage));
 
-  pthread_mutex_lock(account_lock);
-  balance = withdraw_account->balance;
-  if (balance - amount >= 0){
-    withdraw_account->balance -= amount;
-    failure = false;
-  }
-  else{
-    failure = true;
-  }
-  pthread_mutex_unlock(account_lock);
-  if (!failure){
-    log = WITHDRAW_MSG(SUCC, workerID, ledgerID, accountID, amount);
-    recordSucc(log);
+  //unlock runway and signal waiting flights
+  pthread_mutex_unlock(&chosen_runway->lock);
+  pthread_mutex_lock(&airport_lock);
+  pthread_cond_signal(&runway_available_cond);
+  pthread_mutex_unlock(&airport_lock);
 
-    return 0;
-  }
-  else{
-    log = WITHDRAW_MSG(ERR, workerID, ledgerID, accountID, amount);
-    recordFail(log);
-
-    return -1;
-  }
+  return 0;
 }

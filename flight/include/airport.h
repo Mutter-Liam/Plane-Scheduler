@@ -25,7 +25,7 @@ using namespace std;
   std::string { "[ LANDING ] " }
 
 #define TAKEOFF_MSG(tid, flightID ,time, runway, fuel)                              \
-  TAKEOFF + "TID: " + std::to_string(tid) + "F;ight: " + std::to_string(flightID) + ", Time: " + std::to_string(time) + \
+  TAKEOFF + "TID: " + std::to_string(tid) + "Flight: " + std::to_string(flightID) + ", Time: " + std::to_string(time) + \
       ", Runway: " + std::to_string(runway) + " Fuel: " + std::to_string(fuel) + "%"
 
 #define LANDING_MSG(tid, flightID ,time, runway, fuel)                               \
@@ -36,6 +36,7 @@ struct Runway {
   unsigned int runwayID;
   int takeoffs;
   int landings;
+  int time;
   pthread_mutex_t lock;
 };
 
@@ -44,7 +45,6 @@ class Airport {
   int num;
   int num_takeoffs;
   int num_landings;
-  int time;
   int *completion_times;
   int *response_times;
 
@@ -65,8 +65,9 @@ class Airport {
   int getNumLandings() { return num_landings; }
 
   pthread_mutex_t airport_lock;
+  pthread_cond_t runway_available_cond;
   struct Runway *runways;
-  BoundedBuffer<struct *Runway> available_runways;
+  BoundedBuffer<struct Runway *> available_runways;
 };
 
 #endif
