@@ -58,13 +58,13 @@ void Airport::recordTakeoff(string message) {
  *
  * @param N The number of accounts to be created in the bank.
  */
-Airport::Airport(int N)
-    : available_runways(N)
+Airport::Airport()
+    : available_runways(2)
 {
     pthread_mutex_init(&airport_lock, NULL);
     pthread_cond_init(&runway_available_cond, NULL);
-    runways = new Runway[N];
-    for (int i = 0; i < N; i++) {
+    runways = new Runway[2];
+    for (int i = 0; i < 2; i++) {
         runways[i].runwayID = i;
         runways[i].takeoffs = 0;
         runways[i].landings = 0;
@@ -72,7 +72,7 @@ Airport::Airport(int N)
         pthread_mutex_init(&runways[i].lock, NULL);
     }
 
-    num = N;
+    num = 2;
     num_takeoffs = 0;
     num_landings = 0;
 }
