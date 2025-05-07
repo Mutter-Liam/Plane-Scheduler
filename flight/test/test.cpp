@@ -65,20 +65,15 @@ TEST(Airport, TestLogs) {
   EXPECT_EQ(i, 3) << "There should be 5 lines in the log";
 }
 
-TEST(LedgerTest, LoadLedgerTest){
+TEST(ScheduleTest, LoadScheduleTest){
   int res = load_schedule("examples/example1.txt");
   EXPECT_TRUE(res != -1) << "Load ledger did not load the ledger";
-  /*
-  1 20 30 40 1
-  2 4 6 8 0
-  3 9 5 3 1
-  10 10 10 10 0
-  */
-  int ids[]    = {1,  2, 3, 10};
-  int fuels[]  = {20, 4, 9, 10};
-  int times[]  = {30, 6, 5, 10};
-  int r_times[] = {40, 0, 1, 10};
-  int modes[]  = {1,  0, 1,  0};
+
+  int ids[]     = {1,  2, 3, 10};
+  int fuels[]   = {20, 4, 9, 10};
+  int times[]   = {30, 6, 5, 10};
+  int r_times[] = {40, 8, 3, 10};
+  int modes[]   = {1,  0, 1,  0};
   int i = 0;
   for (Schedule* item: schedule){
     EXPECT_EQ(item->flightID, ids[i]);
@@ -88,6 +83,24 @@ TEST(LedgerTest, LoadLedgerTest){
     EXPECT_EQ(item->mode, modes[i]);
     free(item);
     i++;
+  }
+}
+
+TEST(SchedulingTest, SingleThreadTest){
+
+
+  // capture out
+  stringstream output;
+  streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
+  cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
+
+  //Run scheduling
+  InitAirport(1, 1, 5, "examples/example2.txt");
+  cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
+  
+  string line = "";
+  while (getline(output, line)) {
+    cout << line;
   }
 }
 
