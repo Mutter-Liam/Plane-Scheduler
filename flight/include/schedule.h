@@ -23,6 +23,7 @@ struct Schedule {
   int fuelPercent;
   int scheduledTime;
   int timeSpentOnRunway;
+  int requestTime;
   int mode;
 };
 
