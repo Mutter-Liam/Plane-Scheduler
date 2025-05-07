@@ -24,6 +24,7 @@ struct Schedule {
   int scheduledTime;
   int timeSpentOnRunway;
   int requestTime;
+  int completionTime;
   int mode;
 };
 

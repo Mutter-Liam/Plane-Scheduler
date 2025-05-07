@@ -37,7 +37,7 @@ int con_items; // total number of items consumed
  *
  */
 void InitAirport(int p, int c, int size, char *filename) {
-  airport = new Airport(2);
+  airport = new Airport();
   bb = new BoundedBuffer<struct Schedule*>(size);
   airport->print_runway();
   if(load_schedule(filename) != 0){
@@ -91,14 +91,16 @@ int load_schedule(char *filename) {
 
   ifstream input(filename);
   if(!input){cout << "Couldn't read file\n"; return -1;}
-  int Flightid, FuelPercent, Time, TimeSpentOnRunway, FlightType, mode;
+  int flightId, fuelPercent, Time, TimeSpentOnRunway, requestTime, completionTime, mode;
   int count = 0;
-  while (input >> Flightid >> FuelPercent >> Time >> TimeSpentOnRunway >> mode){
+  while (input >> flightId >> fuelPercent >> Time >> TimeSpentOnRunway >> requestTime >> completionTime >> mode){
     Schedule* sched = new Schedule();
-    sched->flightID = Flightid;
-    sched->fuelPercent = FuelPercent;
+    sched->flightID = flightId;
+    sched->fuelPercent = fuelPercent;
     sched->scheduledTime = Time;
     sched->timeSpentOnRunway = TimeSpentOnRunway;
+    sched->requestTime = requestTime;
+    sched->completionTime = completionTime;
     sched->mode = mode;
     schedule.push_back(sched);
   }
