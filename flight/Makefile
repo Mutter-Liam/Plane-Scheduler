@@ -1,10 +1,10 @@
-_DEPS = bank.h ledger.h boundedBuffer.h
-_OBJ = bank.o ledger.o boundedBuffer.o
+_DEPS = airport.h schedule.h boundedBuffer.h
+_OBJ = airport.o schedule.o boundedBuffer.o
 _MOBJ = main.o
 _TOBJ = test.o
 
-APPBIN = bank_app
-TESTBIN = bank_test
+APPBIN = airport_app
+TESTBIN = airport_test
 
 DEBUG = -DDEBUGMODE
 

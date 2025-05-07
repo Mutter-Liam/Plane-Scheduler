@@ -40,7 +40,7 @@ void InitAirport(int p, int c, int size, char *filename) {
   airport = new Airport(2);
   bb = new BoundedBuffer<struct Schedule*>(size);
   airport->print_runway();
-  if(load_ledger(filename) != 0){
+  if(load_schedule(filename) != 0){
     delete airport;
     delete bb;  
     exit(0);
@@ -87,7 +87,7 @@ void InitAirport(int p, int c, int size, char *filename) {
  * @param filename The name of the file containing the ledger data.
  * @return 0 on success, -1 on failure to open the file.
  */
-int load_ledger(char *filename) {
+int load_schedule(char *filename) {
 
   ifstream input(filename);
   if(!input){cout << "Couldn't read file\n"; return -1;}

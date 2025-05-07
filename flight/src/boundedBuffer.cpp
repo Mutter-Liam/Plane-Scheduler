@@ -5,6 +5,7 @@
  */
 template class BoundedBuffer<Flight*>;
 template class BoundedBuffer<Runway*>;
+template class BoundedBuffer<Schedule*>;
 template class BoundedBuffer<int>;
 
 /**

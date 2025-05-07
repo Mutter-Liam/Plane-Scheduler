@@ -10,6 +10,7 @@
 
 struct Runway;
 struct Flight;
+struct Schedule;
 using namespace std;
 
 template <typename T>
