@@ -105,6 +105,166 @@ int load_schedule(char *filename) {
     schedule.push_back(sched);
   }
   max_items = count;
+
+  list<struct Schedule *> sched = schedule;
+  int t1 = 0;
+    int t2 = 0;
+    int holder = 0;
+    Schedule* checker;
+    list<struct Schedule *> organized_schedule;
+
+    while(checker != nullptr || !sched.empty()){
+        //Useful Vairables
+        int earliestRunwayTime = min(t1, t2);
+
+        int cReadyTime = max(earliestRunwayTime, checker->scheduledTime);
+        int fReadyTime = max(earliestRunwayTime, sched.front()->scheduledTime);
+
+        int cWaitTime = max(0, cReadyTime - checker->requestTime);
+        int fWaitTime = max(0, fReadyTime - sched.front()->requestTime);
+
+        int cExpectedFuel = checker->fuelPercent - cWaitTime;
+        int fExpectedFuel = sched.front()->fuelPercent - fWaitTime;
+
+        int cDoneBy = cReadyTime + checker->timeSpentOnRunway;
+        int fDoneBy = fReadyTime + sched.front()->timeSpentOnRunway;
+
+        if(checker == nullptr){
+            checker = sched.front();
+            sched.pop_front();
+        }
+        if(sched.size() == 0){
+            checker->completionTime = cDoneBy;
+            if (min(t1,t2)==t2) t2=cDoneBy;
+            else t1=cDoneBy;
+            organized_schedule.push_back(checker);
+            break;
+        }
+
+        //If a landing flight has no fuel left (EMERGENCY)
+        if (fExpectedFuel <= 0 && cExpectedFuel > 0){
+            sched.front()->completionTime = fDoneBy;
+            holder = fDoneBy;
+            organized_schedule.push_back(sched.front());
+            sched.pop_front();
+            continue;
+        } else if (cExpectedFuel <= 0) {
+            checker->completionTime = cDoneBy;
+            holder = cDoneBy;
+            organized_schedule.push_back(checker);
+            checker = nullptr;
+            continue;
+        }
+
+        //Both flights Landing
+        if(checker->mode == 1 && sched.front()->mode == 1){
+            if (cExpectedFuel > fExpectedFuel){
+                sched.front()->completionTime = fDoneBy;
+                holder = fDoneBy;
+                organized_schedule.push_back(sched.front());
+                sched.pop_front();
+                continue;
+            } else if (cExpectedFuel < fExpectedFuel) {
+                checker->completionTime = cDoneBy;
+                holder = cDoneBy;
+                organized_schedule.push_back(checker);
+                checker = nullptr;
+                continue;
+            } else {
+                if (cDoneBy < fDoneBy) {
+                    checker->completionTime = cDoneBy;
+                    holder = cDoneBy;
+                    organized_schedule.push_back(checker);
+                    checker = nullptr;
+                    continue;
+                } else if (cDoneBy > fDoneBy) {
+                    sched.front()->completionTime = fDoneBy;
+                    holder = fDoneBy;
+                    organized_schedule.push_back(sched.front());
+                    sched.pop_front();
+                    continue;
+                } else {
+                    if (checker->timeSpentOnRunway < sched.front()->timeSpentOnRunway) {
+                        sched.front()->completionTime = fDoneBy;
+                        holder = fDoneBy;
+                        organized_schedule.push_back(sched.front());
+                        sched.pop_front();
+                        continue;
+                    } else {
+                        checker->completionTime = cDoneBy;
+                        holder = cDoneBy;
+                        organized_schedule.push_back(checker);
+                        checker = nullptr;
+                        continue;
+                    }
+                }
+            }
+        //Both else ifs are when one flight is landing and the other is taking off
+        } else if (checker->mode == 0 && sched.front()->mode == 1) {
+            if (fExpectedFuel <= 5){
+                sched.front()->completionTime = fDoneBy;
+                holder = fDoneBy;
+                organized_schedule.push_back(sched.front());
+                sched.pop_front();
+                continue;
+            } else if (fExpectedFuel >= 50 && fDoneBy > checker->scheduledTime) {
+                checker->completionTime = cDoneBy;
+                holder = cDoneBy;
+                organized_schedule.push_back(checker);
+                checker = nullptr;
+                continue;
+            } else {
+                sched.front()->completionTime = fDoneBy;
+                holder = fDoneBy;
+                organized_schedule.push_back(sched.front());
+                sched.pop_front();
+                continue;
+            }
+        } else if (checker->mode == 1 && sched.front()->mode == 0){
+            if (cExpectedFuel <= 5){
+                checker->completionTime = cDoneBy;
+                holder = cDoneBy;
+                organized_schedule.push_back(checker);
+                checker = nullptr;
+                continue;
+            } else if (cExpectedFuel >= 50 && cDoneBy > sched.front()->scheduledTime) {
+                sched.front()->completionTime = fDoneBy;
+                holder = fDoneBy;
+                organized_schedule.push_back(sched.front());
+                sched.pop_front();
+                continue;
+            } else {
+                checker->completionTime = cDoneBy;
+                holder = cDoneBy;
+                organized_schedule.push_back(checker);
+                checker = nullptr;
+                continue;
+            }
+        //Both flights taking off
+        } else {
+            if(checker->scheduledTime >= sched.front()->scheduledTime){
+                checker->completionTime = cDoneBy;
+                holder = cDoneBy;
+                organized_schedule.push_back(checker);
+                checker = nullptr;
+                continue;
+            } else {
+                sched.front()->completionTime = fDoneBy;
+                holder = fDoneBy;
+                organized_schedule.push_back(sched.front());
+                sched.pop_front();
+                continue;
+            }
+        }
+        if (min(t1,t2)==t2){
+            t2=holder;
+        } else {
+            t1=holder;
+        }
+    }
+    schedule = organized_schedule;
+    return 0;
+
   return 0;
 }
 

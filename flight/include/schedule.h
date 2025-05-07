@@ -3,6 +3,7 @@
 
 #include <airport.h>
 #include <boundedBuffer.h>
+#include <algorithm>
 
 #ifdef DEBUGMODE
 #define debug(msg) \
