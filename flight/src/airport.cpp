@@ -68,6 +68,7 @@ Airport::Airport(int N)
         runways[i].runwayID = i;
         runways[i].takeoffs = 0;
         runways[i].landings = 0;
+        runways[i].time = 0;
         pthread_mutex_init(&runways[i].lock, NULL);
     }
 
