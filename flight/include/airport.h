@@ -24,12 +24,12 @@ using namespace std;
 #define LANDING \
   std::string { "[ LANDING ] " }
 
-#define TAKEOFF_MSG(tid, flightID ,time, runway, fuel)                              \
-  TAKEOFF + "TID: " + std::to_string(tid) + "Flight: " + std::to_string(flightID) + ", Time: " + std::to_string(time) + \
+#define TAKEOFF_MSG(tid, flightID ,timee, runway, fuel)                              \
+  TAKEOFF + "TID: " + std::to_string(tid) + "Flight: " + std::to_string(flightID) + ", Time: " + std::to_string(timee) + \
       ", Runway: " + std::to_string(runway) + " Fuel: " + std::to_string(fuel) + "%"
 
-#define LANDING_MSG(tid, flightID ,time, runway, fuel)                               \
-  LANDING + "TID: " + std::to_string(tid) + "F;ight: " + std::to_string(flightID) + ", Time: " + std::to_string(time) + \
+#define LANDING_MSG(tid, flightID ,timee, runway, fuel)                               \
+  LANDING + "TID: " + std::to_string(tid) + "F;ight: " + std::to_string(flightID) + ", Time: " + std::to_string(timee) + \
       ", Runway: " + std::to_string(runway) + " Fuel: " + std::to_string(fuel) + "%"
 
 struct Runway {
