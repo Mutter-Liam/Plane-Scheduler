@@ -87,7 +87,8 @@ TEST(ScheduleTest, LoadScheduleTest){
 }
 
 TEST(SchedulingTest, SingleThreadTest){
-
+  //Runs example2 with 1 producer and 1 consumer
+  //HAVEN'T ADDED EXPECTED VALUES YET, JUST PRINTS RESULT
 
   // capture out
   stringstream output;
@@ -97,7 +98,7 @@ TEST(SchedulingTest, SingleThreadTest){
   //Run scheduling
   InitAirport(1, 1, 5, "examples/example2.txt");
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
-  
+
   string line = "";
   while (getline(output, line)) {
     cout << line;
