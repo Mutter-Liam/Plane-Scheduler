@@ -37,7 +37,7 @@ int con_items; // total number of items consumed
  *
  */
 void InitAirport(int p, int c, int size, char *filename) {
-  airport = new Airport();
+  airport = new Airport(2);
   bb = new BoundedBuffer<struct Schedule*>(size);
   airport->print_runway();
   if(load_schedule(filename) != 0){
