@@ -24,13 +24,13 @@ using namespace std;
 #define LANDING \
   std::string { "[ LANDING ] " }
 
-#define TAKEOFF_MSG(tid, flightID ,timee, runway, fuel)                              \
-  TAKEOFF + "TID: " + std::to_string(tid) + "Flight: " + std::to_string(flightID) + ", Time: " + std::to_string(timee) + \
-      ", Runway: " + std::to_string(runway) + " Fuel: " + std::to_string(fuel) + "%"
+#define TAKEOFF_MSG(tid, flightID ,timee, runway, fuel, actualTime, completionTime)                              \
+  TAKEOFF + "TID: " + std::to_string(tid) + "Flight: " + std::to_string(flightID) + ", ScheduledTime: " + std::to_string(timee) + \
+      ", Runway: " + std::to_string(runway) + " Fuel: " + std::to_string(fuel) + "%" + " TakeoffTime: " + std::to_string(actualTime) + " CompletionTime: " + std::to_string(completionTime)
 
-#define LANDING_MSG(tid, flightID ,timee, runway, fuel)                               \
-  LANDING + "TID: " + std::to_string(tid) + "F;ight: " + std::to_string(flightID) + ", Time: " + std::to_string(timee) + \
-      ", Runway: " + std::to_string(runway) + " Fuel: " + std::to_string(fuel) + "%"
+#define LANDING_MSG(tid, flightID ,timee, runway, fuel, actualTime, completionTime)                               \
+  LANDING + "TID: " + std::to_string(tid) + "F;ight: " + std::to_string(flightID) + ", ScheduledTime: " + std::to_string(timee) + \
+      ", Runway: " + std::to_string(runway) + " Fuel: " + std::to_string(fuel) + "%" + " LandingTime: " + std::to_string(actualTime) + " CompletionTime: " + std::to_string(completionTime)
 
 struct Runway {
   unsigned int runwayID;
@@ -52,8 +52,8 @@ class Airport {
   Airport(int N);
   ~Airport();  // destructor
 
-  int takeoff(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway);
-  int landing(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway);
+  int takeoff(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway, int actualTime, int completionTime);
+  int landing(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway, int actualTime, int completionTime);
 
 
   // helper functions
