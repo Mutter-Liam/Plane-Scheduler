@@ -321,10 +321,10 @@ void* consumer(void* workerID) {
 
       switch (item->mode) {
           case T:
-              airport->takeoff(id, item->flightID, item->fuelPercent, item->scheduledTime, item->timeSpentOnRunway);
+              airport->takeoff(id, item->flightID, item->fuelPercent, item->scheduledTime, item->timeSpentOnRunway, item->completionTime - item->timeSpentOnRunway, item->completionTime);
               break;
           case L:
-              airport->landing(id, item->flightID, item->fuelPercent, item->scheduledTime, item->timeSpentOnRunway);
+              airport->landing(id, item->flightID, item->fuelPercent, item->scheduledTime, item->timeSpentOnRunway, item->completionTime - item->timeSpentOnRunway, item->completionTime);
               break;
           default:
               cerr << "Unknown mode: " << item->mode << " for flight " << item->flightID << endl;

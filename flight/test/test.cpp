@@ -24,7 +24,7 @@ extern list<struct Schedule *> schedule;
 Airport *airport_t;
 sem_t glock;
 
-// test correct init accounts and counts
+// test correct init accounts and counts, test will be rewritten.
 TEST(AirportTest, TestAirportConstructor) {
   airport_t = new Airport(10);
 
@@ -38,9 +38,9 @@ TEST(AirportTest, TestAirportConstructor) {
 // make sure you pass this test case
 TEST(Airport, TestLogs) {
   // expected logs ex
-  string logs[5]{LANDING_MSG(0, 1, 0, 1, 80),
-                 TAKEOFF_MSG(0, 2, 0, 2, 70),
-                 LANDING_MSG(0, 3, 10, 1, 50)};
+  string logs[5]{LANDING_MSG(0, 1, 0, 1, 80,0,1),
+                 TAKEOFF_MSG(0, 2, 0, 2, 70,0,1),
+                 LANDING_MSG(0, 3, 10, 1, 50, 10,19)};
 
   int i = 0;
   airport_t = new Airport(2);
@@ -50,9 +50,9 @@ TEST(Airport, TestLogs) {
   streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
 
-  airport_t->landing(0, 1, 90, 0, 10);
-  airport_t->takeoff(0, 2, 90, 0, 20);
-  airport_t->landing(0, 3, 90, 0, 30);
+  airport_t->landing(0, 1, 90, 0, 10, 10, 1000);
+  airport_t->takeoff(0, 2, 90, 0, 20, 10, 1000);
+  airport_t->landing(0, 3, 90, 0, 30, 10, 1000);
   
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 

@@ -114,7 +114,7 @@ Airport::Airport(int N)
  * @param amount The amount to deposit.
  * @return 0 on success.
  */
-int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway) {
+int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway, int actualTime, int completionTime) {
 
   Runway *chosen_runway = nullptr;
   int runwayID = -1;
@@ -133,7 +133,7 @@ int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int schedul
     pthread_cond_wait(&runway_available_cond, &airport_lock);//signal wait for runway
   }
   pthread_mutex_unlock(&airport_lock);
-  recordTakeoff(TAKEOFF_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage), runwayID);
+  recordTakeoff(TAKEOFF_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage, actualTime, completionTime), runwayID);
 
   //unlock runway and signal waiting flights
   pthread_mutex_unlock(&chosen_runway->lock);
@@ -167,7 +167,7 @@ int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int schedul
  * @param amount The amount to withdraw.
  * @return 0 on success, -1 on failure.
  */
-int Airport::landing(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway) {
+int Airport::landing(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway, int actualTime, int completionTime) {
 
   Runway *chosen_runway = nullptr;
   int runwayID = -1;
@@ -186,7 +186,7 @@ int Airport::landing(int workerID, int flightID, int fuelPercentage, int schedul
     pthread_cond_wait(&runway_available_cond, &airport_lock);//signal wait for runway
   }
   pthread_mutex_unlock(&airport_lock);
-  recordLanding(LANDING_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage), runwayID);
+  recordLanding(LANDING_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage, actualTime, completionTime), runwayID);
 
   //unlock runway and signal waiting flights
   pthread_mutex_unlock(&chosen_runway->lock);
