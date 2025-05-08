@@ -21,11 +21,10 @@ void Airport::print_runway() {
  *
  * @param message
  */
-void Airport::recordLanding(string message) {
-  pthread_mutex_lock(&airport_lock);
-  cout << message << endl;
+void Airport::recordLanding(string message, int runwayID) {
+  runways[runwayID].landings++;
   num_landings++;
-  pthread_mutex_unlock(&airport_lock);
+  cout << message << endl;
 }
 
 /**
@@ -34,11 +33,10 @@ void Airport::recordLanding(string message) {
  *
  * @param message
  */
-void Airport::recordTakeoff(string message) {
-  pthread_mutex_lock(&airport_lock);
-  cout << message << endl;
+void Airport::recordTakeoff(string message, int runwayID) {
+  runways[runwayID].takeoffs++;
   num_takeoffs++;
-  pthread_mutex_unlock(&airport_lock);
+  cout << message << endl;
 }
 
 /***************************************************
@@ -135,7 +133,7 @@ int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int schedul
     pthread_cond_wait(&runway_available_cond, &airport_lock);//signal wait for runway
   }
   pthread_mutex_unlock(&airport_lock);
-  recordTakeoff(TAKEOFF_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage));
+  recordTakeoff(TAKEOFF_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage), runwayID);
 
   //unlock runway and signal waiting flights
   pthread_mutex_unlock(&chosen_runway->lock);
@@ -188,7 +186,7 @@ int Airport::landing(int workerID, int flightID, int fuelPercentage, int schedul
     pthread_cond_wait(&runway_available_cond, &airport_lock);//signal wait for runway
   }
   pthread_mutex_unlock(&airport_lock);
-  recordLanding(LANDING_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage));
+  recordLanding(LANDING_MSG(workerID, flightID, scheduledTime, runwayID, fuelPercentage), runwayID);
 
   //unlock runway and signal waiting flights
   pthread_mutex_unlock(&chosen_runway->lock);

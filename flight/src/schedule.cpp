@@ -93,14 +93,14 @@ int load_schedule(char *filename) {
   if(!input){cout << "Couldn't read file\n"; return -1;}
   int flightId, fuelPercent, Time, TimeSpentOnRunway, requestTime, completionTime, mode;
   int count = 0;
-  while (input >> flightId >> fuelPercent >> Time >> TimeSpentOnRunway >> requestTime >> completionTime >> mode){
+  while (input >> flightId >> fuelPercent >> Time >> TimeSpentOnRunway >> requestTime >> mode){
     Schedule* schedd = new Schedule();
     schedd->flightID = flightId;
     schedd->fuelPercent = fuelPercent;
     schedd->scheduledTime = Time;
     schedd->timeSpentOnRunway = TimeSpentOnRunway;
     schedd->requestTime = requestTime;
-    schedd->completionTime = completionTime;
+    schedd->completionTime = 0;
     schedd->mode = mode;
     schedule.push_back(schedd);
     count++;
