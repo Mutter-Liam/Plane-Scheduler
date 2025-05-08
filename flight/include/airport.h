@@ -58,8 +58,8 @@ class Airport {
 
   // helper functions
   void print_runway();
-  void recordTakeoff(string message);
-  void recordLanding(string message);
+  void recordTakeoff(string message, int runwayID);
+  void recordLanding(string message, int runwayID);
   int getNum() { return num; }
   int getNumTakeoffs() { return num_takeoffs; }
   int getNumLandings() { return num_landings; }
