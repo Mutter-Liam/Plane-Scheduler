@@ -49,7 +49,7 @@ class Airport {
   int *response_times;
 
  public:
-  Airport();
+  Airport(int N);
   ~Airport();  // destructor
 
   int takeoff(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway);
