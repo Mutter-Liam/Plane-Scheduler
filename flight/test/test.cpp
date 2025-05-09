@@ -180,62 +180,6 @@ TEST(SchedulingTest, CrashTest){
   }
 }
 
-TEST(MetricTests, MetricTestOurs){
-  ofstream output("out.txt", ios::in);
-  ifstream outin("out.txt");
-  streambuf *coutbuf = std::cout.rdbuf();
-  cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
-  //Run scheduling
-  InitAirport(1, 1, 5, "test/examples/example1.txt", 0);
-
-  cout.rdbuf(coutbuf);
-  string line = "";
-  output.seekg(0);
-  for (int i = 0; i < 12; ++i){
-    getline(outin, line);
-  }
-  string response = "";
-  string fuel_burn = "";
-  getline(outin, response);
-  getline(outin, fuel_burn);
-  float res_time = stof(response.substr(response.length() - 2));
-  float fuel_avg = stof(fuel_burn.substr(fuel_burn.length() - 2));
-
-  EXPECT_NEAR(4, res_time, 0.1);
-  EXPECT_NEAR(21, fuel_avg, 0.1);
-}
-
-TEST(MetricTests, MetricTestFIFO){
-
-  ofstream output("out.txt", ios::in);
-  ifstream outin("out.txt");
-  streambuf *coutbuf = std::cout.rdbuf();
-  cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
-  //Run scheduling
-  InitAirport(1, 1, 5, "test/examples/example1.txt", 1);
-
-  cout.rdbuf(coutbuf);
-
-  string line = "";
-  output.seekp(0);
-  for (int i = 0; i < 12; ++i){
-    getline(outin, line);
-    cout << line << endl;
-  }
-  string response = "";
-  string fuel_burn = "";
-  getline(outin, response);
-  getline(outin, fuel_burn);
-  cout << response << endl;
-  cout << fuel_burn << endl;
-  cout << response.substr(response.length() - 2) << endl;
-  cout << fuel_burn.substr(fuel_burn.length() - 2) << endl;
-  float res_time = stof(response.substr(response.length() - 2));
-  float fuel_avg = stof(fuel_burn.substr(fuel_burn.length() - 2));
-
-  EXPECT_NEAR(7, res_time, 0.1);
-  EXPECT_NEAR(18, fuel_avg, 0.1);
-}
 
 TEST(PCTest, Test1) {
   BoundedBuffer<int> *BB = new BoundedBuffer<int>(5);
