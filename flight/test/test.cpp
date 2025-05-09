@@ -210,12 +210,14 @@ TEST(MetricTests, MetricTestFIFO){
   streambuf *coutbuf = std::cout.rdbuf();
   cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
   //Run scheduling
-  InitAirport(1, 1, 5, "test/examples/example1.txt", 0);
+  InitAirport(1, 1, 5, "test/examples/example1.txt", 1);
 
   cout.rdbuf(coutbuf);
+
   string line = "";
   for (int i = 0; i < 12; ++i){
     getline(output, line);
+    cout << line << endl;
   }
   string response = "";
   string fuel_burn = "";
