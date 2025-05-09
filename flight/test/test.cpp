@@ -127,14 +127,15 @@ TEST(SchedulingTest, MultiThreadTest){
     "[ TAKEOFF ] TID: 0 Flight: 2, ScheduledTime: 6, Runway: 0 Fuel: 40% TakeoffTime: 20 CompletionTime: 28",
     "[ TAKEOFF ] TID: 1 Flight: 3, ScheduledTime: 10, Runway: 1 Fuel: 10% TakeoffTime: 10 CompletionTime: 20"};
   // capture out
-  stringstream output;
+
   fstream output("out.txt");
+  streambuf *coutbuf = std::cout.rdbuf(); //save old buf
   cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!             
 
   //Run scheduling
   InitAirport(2, 2, 5, "test/examples/example1.txt", 0);
 
-  cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
+  cout.rdbuf(coutbuf);  // restore cout's original streambuf
   string line = "";
   getline(output, line);
   getline(output, line);
@@ -154,14 +155,15 @@ TEST(SchedulingTest, CrashTest){
     "[ LANDING ] TID: 0 Flight: 2, ScheduledTime: 0, Runway: 1 Fuel: 0% LandingTime: 0 CompletionTime: 10",
     "[ LANDING ] TID: 0 Flight: 3, ScheduledTime: 0, Runway: 0 Fuel: 60% LandingTime: 10 CompletionTime: 20"
   }; 
-  
-  stringstream output;
+
+ 
   fstream output("out.txt");
+  streambuf *coutbuf = std::cout.rdbuf();
   cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
   //Run scheduling
   InitAirport(1, 1, 5, "test/examples/crash.txt", 0);
 
-  cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
+  cout.rdbuf(coutbuf);  // restore cout's original streambuf
   string line = "";
   getline(output, line);
   getline(output, line);
