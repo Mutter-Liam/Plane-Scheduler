@@ -38,9 +38,9 @@ TEST(AirportTest, TestAirportConstructor) {
 // make sure you pass this test case
 TEST(Airport, TestLogs) {
   // expected logs ex
-  string logs[5]{LANDING_MSG(0, 1, 0, 1, 80,0,1),
-                 TAKEOFF_MSG(0, 2, 0, 2, 70,0,1),
-                 LANDING_MSG(0, 3, 10, 1, 50, 10,19)};
+  string logs[3]{LANDING_MSG(0, 1, 0, 1, 80,0,10),
+                 TAKEOFF_MSG(0, 2, 0, 2, 70,0,20),
+                 LANDING_MSG(0, 3, 10, 1, 50, 10,40)};
 
   int i = 0;
   airport_t = new Airport(2);
@@ -50,9 +50,9 @@ TEST(Airport, TestLogs) {
   streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
 
-  airport_t->landing(0, 1, 90, 0, 10, 10, 1000);
-  airport_t->takeoff(0, 2, 90, 0, 20, 10, 1000);
-  airport_t->landing(0, 3, 90, 0, 30, 10, 1000);
+  airport_t->landing(0, 1, 90, 0, 10, 10, 10);
+  airport_t->takeoff(0, 2, 90, 0, 20, 10, 20);
+  airport_t->landing(0, 3, 90, 0, 30, 10, 40);
   
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 
@@ -66,13 +66,13 @@ TEST(Airport, TestLogs) {
 }
 
 TEST(ScheduleTest, LoadScheduleTest){
-  int res = load_schedule("examples/example1.txt");
+  int res = load_schedule("test/examples/example1.txt");
   EXPECT_TRUE(res != -1) << "Load ledger did not load the ledger";
 
-  int ids[]     = {1,  2, 3, 10};
-  int fuels[]   = {20, 4, 9, 10};
-  int times[]   = {30, 6, 5, 10};
-  int r_times[] = {40, 8, 3, 10};
+  int ids[]     = {1,  3, 4, 2};
+  int fuels[]   = {9, 10, 20, 40};
+  int times[]   = {5, 10, 30, 6};
+  int r_times[] = {3, 10, 40, 8};
   int modes[]   = {1,  0, 1,  0};
   int i = 0;
   for (Schedule* item: schedule){
@@ -80,6 +80,7 @@ TEST(ScheduleTest, LoadScheduleTest){
     EXPECT_EQ(item->fuelPercent, fuels[i]);
     EXPECT_EQ(item->scheduledTime, times[i]);
     EXPECT_EQ(item->timeSpentOnRunway, r_times[i]);
+    EXPECT_EQ(item->requestTime, times[i]);
     EXPECT_EQ(item->mode, modes[i]);
     free(item);
     i++;
@@ -99,7 +100,12 @@ TEST(SchedulingTest, SingleThreadTest){
   stringstream output;
   streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
-
+  string logs[4] = {
+    LANDING_MSG(0, 1, 5, 0, 6, 5, 8),
+    TAKEOFF_MSG(0, 3, 6, 1, 0, 10, 20),
+    LANDING_MSG(0, 2, 10, 0, 12, 12, 18),
+    TAKEOFF_MSG(0, 4, 30, 0, 20, 30, 70)
+  };
   //Run scheduling
   InitAirport(1, 1, 5, "examples/example1.txt");
 
