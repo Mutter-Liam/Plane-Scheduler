@@ -62,7 +62,7 @@ TEST(Airport, TestLogs) {
     EXPECT_EQ(line, logs[i++]) << "Your log msg did not match the expected msg";
   }
 
-  EXPECT_EQ(i, 3) << "There should be 5 lines in the log";
+  EXPECT_EQ(i, 3) << "There should be 3 lines in the log";
 }
 
 TEST(ScheduleTest, LoadScheduleTest){
@@ -102,7 +102,7 @@ TEST(SchedulingTest, SingleThreadTest){
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
 
   //Run scheduling
-  InitAirport(1, 1, 5, "examples/example1.txt");
+  InitAirport(1, 1, 5, "test/examples/example1.txt");
 
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 
@@ -121,14 +121,14 @@ TEST(SchedulingTest, MultiThreadTest){
     "[ LANDING ] TID: 0F;ight: 1, ScheduledTime: 5, Runway: 0 Fuel: 9% LandingTime: 5 CompletionTime: 8",
     "[ LANDING ] TID: 0F;ight: 4, ScheduledTime: 30, Runway: 0 Fuel: 20% LandingTime: 30 CompletionTime: 70",
     "[ TAKEOFF ] TID: 0Flight: 2, ScheduledTime: 6, Runway: 0 Fuel: 40% TakeoffTime: 20 CompletionTime: 28",
-    "[ TAKEOFF ] TID: 1Flight: 3, ScheduledTime: 10, Runway: 1 Fuel: 10% TakeoffTime: 10 CompletionTime: 20"};  
+    "[ TAKEOFF ] TID: 1Flight: 3, ScheduledTime: 10, Runway: 1 Fuel: 10% TakeoffTime: 10 CompletionTime: 20"};
   // capture out
   stringstream output;
   streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
 
   //Run scheduling
-  InitAirport(2, 2, 5, "examples/example1.txt");
+  InitAirport(2, 2, 5, "test/examples/example1.txt");
 
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 
@@ -154,7 +154,7 @@ TEST(SchedulingTest, CrashTest){
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
 
   //Run scheduling
-  InitAirport(1, 1, 5, "examples/crash.txt");
+  InitAirport(1, 1, 5, "test/examples/crash.txt");
 
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 
