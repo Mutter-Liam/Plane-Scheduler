@@ -1,7 +1,11 @@
 #include <airport.h>
 #include <boundedBuffer.h>
 /**
- * @brief prints account information
+ * @brief Prints the status of all airport runways.
+ * 
+ * Iterates through all runways and displays their respective takeoff and landing counts.
+ * Ensures thread safety using mutex locks while accessing shared data.
+ * Also prints the total number of airport-wide takeoffs and landings.
  */
 void Airport::print_runway() {
   for (int i = 0; i < num; i++) {
@@ -16,10 +20,13 @@ void Airport::print_runway() {
 }
 
 /**
- * @brief helper function to increment the bank variable `num_fail` and log
- *        message.
- *
- * @param message
+ * @brief Records a landing event for a specific runway.
+ * 
+ * Increments the landing count for the given runway and updates the total 
+ * number of airport-wide landings. Logs the provided message to the console.
+ * 
+ * @param message The log message to be displayed.
+ * @param runwayID The ID of the runway where the landing occurred.
  */
 void Airport::recordLanding(string message, int runwayID) {
   runways[runwayID].landings++;
@@ -28,10 +35,13 @@ void Airport::recordLanding(string message, int runwayID) {
 }
 
 /**
- * @brief helper function to increment the bank variable `num_succ` and log
- *        message.
- *
- * @param message
+ * @brief Records a takeoff event for a specific runway.
+ * 
+ * Increments the takeoff count for the given runway and updates the total 
+ * number of airport-wide takeoffs. Logs the provided message to the console.
+ * 
+ * @param message The log message to be displayed.
+ * @param runwayID The ID of the runway where the takeoff occurred.
  */
 void Airport::recordTakeoff(string message, int runwayID) {
   runways[runwayID].takeoffs++;
@@ -44,17 +54,16 @@ void Airport::recordTakeoff(string message, int runwayID) {
  ****************************************************/
 
 /**
- * @brief Construct a new Bank object.
+ * @brief Construct a new Airport object.
  *
  * @details
- * This constructor initializes the private variables of the Bank class, creates
- * a new array of type Accounts with a specified size (N), and initializes each
- * account. The accounts are identified by their accountID, and their initial
- * balance is set to 0. Additionally, mutexes are initialized for each account
- * to ensure thread safety during concurrent operations.
+ * This constructor initializes the private variables of the Airport class, 
+ * creates an array of runway objects, and initializes each runway with default 
+ * values. Each runway is assigned a unique ID and has its takeoff and landing 
+ * counts set to zero. Additionally, mutexes and condition variables are 
+ * initialized to ensure thread safety during concurrent operations.
  *
- *
- * @param N The number of accounts to be created in the bank.
+ * @param N The number of runways to be tracked in the airport.
  */
 Airport::Airport(int N)
     : available_runways(2)
@@ -77,16 +86,16 @@ Airport::Airport(int N)
 
 
 /**
- * @brief Destroy the Bank object.
+ * @brief Destroy the Airport object.
  *
  * @details
- * This destructor is responsible for cleaning up the resources used by the Bank
- * object. It ensures that all locks associated with the bank and its accounts
- * are destroyed, and the allocated memory for accounts is freed. Additionally,
- * the bank-wide mutex is destroyed.
+ * This destructor is responsible for cleaning up the resources used by the 
+ * Airport object. It ensures that all mutexes associated with runways and the 
+ * airport-wide operations are properly destroyed. Additionally, it releases 
+ * allocated memory for the runway array.
  *
  * @attention
- * - This destructor is automatically called when a Bank object goes out of
+ * - This destructor is automatically called when an Airport object goes out of 
  * scope or is explicitly deleted.
  */
 
@@ -100,20 +109,25 @@ Airport::Airport(int N)
 }
 
 /**
- * @brief Adds money to an account.
+ * @brief Handles a flight takeoff process.
  *
  * @details
- * This function deposits the specified amount into the specified account and
- * logs the transaction in the following format:
- *   `[ SUCCESS ] TID: {workerID}, LID: {ledgerID}, Acc: {accountID} DEPOSIT ${amount}`
- * using the DEPOSIT_MSG() macro for consistent formatting.
+ * This function attempts to acquire an available runway for a flight takeoff. 
+ * It ensures thread safety by using mutex locks to manage runway access and 
+ * condition variables to wait for availability when necessary. Once a runway 
+ * is acquired, the takeoff is recorded using `recordTakeoff()`, and the runway 
+ * is released for other flights to use.
  *
- * @param workerID The ID of the worker (thread).
- * @param ledgerID The ID of the ledger entry.
- * @param accountID The account ID to deposit.
- * @param amount The amount to deposit.
+ * @param workerID The ID of the worker (thread) handling the takeoff.
+ * @param flightID The ID of the flight taking off.
+ * @param fuelPercentage The remaining fuel percentage of the flight.
+ * @param scheduledTime The scheduled departure time of the flight.
+ * @param timeSpentOnRunway The actual time the flight spent on the runway.
+ * @param actualTime The actual time at which the takeoff occurred.
+ * @param completionTime The time when the takeoff process was completed.
  * @return 0 on success.
  */
+
 int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway, int actualTime, int completionTime) {
 
   Runway *chosen_runway = nullptr;
@@ -145,27 +159,23 @@ int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int schedul
 }
 
 /**
- * @brief Withdraws money from an account.
+ * @brief Handles a flight landing process.
  *
  * @details
- * This function attempts to withdraw the specified amount from the specified
- * account. It checks two cases:
- *   - Case 1: If the withdrawal amount is less than or equal to the account
- * balance, the withdrawal is successful, and the transaction is logged as
- * `[ SUCCESS ] TID: {workerID}, LID: {ledgerID}, Acc: {accountID} WITHDRAW ${amount}`.
- *   - Case 2: If the withdrawal amount exceeds the account balance, the
- * withdrawal fails, and the transaction is logged as
- * `[ ERROR ] TID: {workerID}, LID: {ledgerID}, Acc: {accountID} WITHDRAW ${amount}`.
+ * This function attempts to acquire an available runway for a flight to land. 
+ * It ensures thread safety by using mutex locks to manage runway access and 
+ * condition variables to wait for availability when necessary. Once a runway 
+ * is secured, the landing is recorded using `recordLanding()`, and the runway 
+ * is released for other flights to use.
  *
- * @attention
- * - The function ensures that the account has a large enough balance for a
- * successful withdrawal.
- *
- * @param workerID The ID of the worker (thread).
- * @param ledgerID The ID of the ledger entry.
- * @param accountID The account ID to withdraw from.
- * @param amount The amount to withdraw.
- * @return 0 on success, -1 on failure.
+ * @param workerID The ID of the worker (thread) handling the landing.
+ * @param flightID The ID of the flight landing.
+ * @param fuelPercentage The remaining fuel percentage of the flight.
+ * @param scheduledTime The scheduled arrival time of the flight.
+ * @param timeSpentOnRunway The actual time the flight spent on the runway.
+ * @param actualTime The actual time at which the landing occurred.
+ * @param completionTime The time when the landing process was completed.
+ * @return 0 on success.
  */
 int Airport::landing(int workerID, int flightID, int fuelPercentage, int scheduledTime, int timeSpentOnRunway, int actualTime, int completionTime) {
 
