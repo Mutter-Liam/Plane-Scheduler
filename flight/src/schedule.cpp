@@ -34,14 +34,23 @@ int con_items; // total number of items consumed
  * @param filename The name of the file containing flight schedule data.
  * @return void
  */
-void InitAirport(int p, int c, int size, char *filename) {
+void InitAirport(int p, int c, int size, char *filename, int type) {
   airport = new Airport(2);
   bb = new BoundedBuffer<struct Schedule*>(size);
   airport->print_runway();
-  if(load_schedule(filename) != 0){
-    delete airport;
-    delete bb;  
-    exit(0);
+  if (type == 0) {
+    if(load_schedule(filename) != 0){
+      delete airport;
+      delete bb;  
+      exit(0);
+    }
+  }
+  else {
+    if(load_schedule_FIFO(filename) != 0){
+      delete airport;
+      delete bb;  
+      exit(0);
+    }
   }
   pthread_t p_threads[p];
   pthread_t c_threads[c];
@@ -280,6 +289,36 @@ int load_schedule(char *filename) {
     }
     schedule = organized_schedule;
     return 0;
+}
+
+int load_schedule_FIFO(char *filename) {
+  ifstream input(filename);
+  if(!input){cout << "Couldn't read file\n"; return -1;}
+  int flightId, fuelPercent, Time, TimeSpentOnRunway, requestTime, completionTime, mode;
+  int count = 0;
+  int t1 = 0;
+  int t2 = 0;
+  while (input >> flightId >> fuelPercent >> Time >> TimeSpentOnRunway >> requestTime >> mode){
+    Schedule* schedd = new Schedule();
+    schedd->flightID = flightId;
+    schedd->fuelPercent = fuelPercent;
+    schedd->scheduledTime = Time;
+    schedd->timeSpentOnRunway = TimeSpentOnRunway;
+    schedd->requestTime = requestTime;
+    if (t1 < t2) {
+      t1 += max(t1, Time) + TimeSpentOnRunway;
+      schedd->completionTime = t1;
+    }
+    else {
+      t2 += max(t2, Time) + TimeSpentOnRunway;
+      schedd->completionTime = t2;
+    }
+    schedd->mode = mode;
+    schedule.push_back(schedd);
+    count++;
+  }
+  max_items = count;
+  return 0;
 }
 
 /**
