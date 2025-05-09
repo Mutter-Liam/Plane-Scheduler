@@ -109,6 +109,8 @@ TEST(SchedulingTest, SingleThreadTest){
 
   string line = "";
   int i = 0;
+  getline(output, line);
+  getline(output, line);
   while (getline(output, line) && i < 4) {
     EXPECT_EQ(logs[i++], line);
   }
@@ -132,7 +134,8 @@ TEST(SchedulingTest, MultiThreadTest){
   InitAirport(2, 2, 5, "test/examples/example1.txt", 0);
 
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
-
+  getline(output, line);
+  getline(output, line)
   string line = "";
   int i = 0;
   while (getline(output, line) && i < 4) {
@@ -158,7 +161,8 @@ TEST(SchedulingTest, CrashTest){
   InitAirport(1, 1, 5, "test/examples/crash.txt", 0);
 
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
-
+  getline(output, line);
+  getline(output, line);
   string line = "";
   int i = 0;
   while (getline(output, line) && i < 3) {
