@@ -100,12 +100,7 @@ TEST(SchedulingTest, SingleThreadTest){
   stringstream output;
   streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
-  string logs[4] = {
-    LANDING_MSG(0, 1, 5, 0, 6, 5, 8),
-    TAKEOFF_MSG(0, 3, 6, 1, 0, 10, 20),
-    LANDING_MSG(0, 2, 10, 0, 12, 12, 18),
-    TAKEOFF_MSG(0, 4, 30, 0, 20, 30, 70)
-  };
+
   //Run scheduling
   InitAirport(1, 1, 5, "examples/example1.txt");
 
@@ -164,6 +159,7 @@ TEST(SchedulingTest, CrashTest){
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 
   string line = "";
+  int i = 0;
   int i = 0;
   while (getline(output, line)) {
     EEXPECT_EQ(logs[i++], line);
