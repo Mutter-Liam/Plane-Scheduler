@@ -193,8 +193,10 @@ TEST(MetricTests, MetricTestOurs){
   for (int i = 0; i < 12; ++i){
     getline(output, line);
   }
-  string response = getline(output, line);
-  string fuel_burn = getline(output, line);
+  string response = "";
+  string fuel_burn = "";
+  getline(output, line);
+  getline(output, line);
   float res_time = atof(response.substr(response.length() - 2));
   float fuel_avg = atof(fuel_burn.substr(fuel_burn.length() - 2));
 
