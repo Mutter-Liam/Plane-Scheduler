@@ -16,6 +16,8 @@ void Airport::print_runway() {
 
   pthread_mutex_lock(&airport_lock);
   cout << "Airport takeoffs: " << num_takeoffs << " Airport landings: " << num_landings << endl;
+  cout << "Average Response Time: " << this->getRespTime() << endl;
+  cout << "Average Fuel Burning: " << this->getFuelBurn() << endl;
   pthread_mutex_unlock(&airport_lock);
 }
 
@@ -82,6 +84,8 @@ Airport::Airport(int N)
     num = N;
     num_takeoffs = 0;
     num_landings = 0;
+    respTimeSum = 0;
+    fuelBurnSum = 0;
 }
 
 
@@ -142,6 +146,8 @@ int Airport::takeoff(int workerID, int flightID, int fuelPercentage, int schedul
       } 
     }
     if (chosen_runway) {
+      respTimeSum += (actualTime - scheduledTime);
+      fuelBurnSum += (fuelPercentage - (actualTime - scheduledTime));
       break;
     }
     pthread_cond_wait(&runway_available_cond, &airport_lock);//signal wait for runway

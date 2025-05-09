@@ -43,10 +43,10 @@ struct Runway {
 class Airport {
  private:
   int num;
+  int respTimeSum;
+  int fuelBurnSum;
   int num_takeoffs;
   int num_landings;
-  int *completion_times;
-  int *response_times;
 
  public:
   Airport(int N);
@@ -63,6 +63,8 @@ class Airport {
   int getNum() { return num; }
   int getNumTakeoffs() { return num_takeoffs; }
   int getNumLandings() { return num_landings; }
+  float getRespTime() { return num == 0 ? 0: (float) respTimeSum / (float) num; }
+  float getFuelBurn() { return num == 0 ? 0: (float) fuelBurnSum / (float) num; }
 
   pthread_mutex_t airport_lock;
   pthread_cond_t runway_available_cond;
