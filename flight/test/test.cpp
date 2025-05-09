@@ -160,9 +160,8 @@ TEST(SchedulingTest, CrashTest){
 
   string line = "";
   int i = 0;
-  int i = 0;
   while (getline(output, line)) {
-    EEXPECT_EQ(logs[i++], line);
+    EXPECT_EQ(logs[i++], line);
   }
 }
 
