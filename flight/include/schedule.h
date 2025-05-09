@@ -35,8 +35,9 @@ extern BoundedBuffer<struct Schedule*> *bb;
 extern int max_items;
 extern int con_items;
 
-void InitAirport(int np, int nc, int size, char *filename);
+void InitAirport(int np, int nc, int size, char *filename, int algType);
 int load_schedule(char *filename);
+int load_schedule_FIFO(char *filename);
 void *consumer(void *workerID);
 void *producer(void *unused);
 

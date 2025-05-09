@@ -103,7 +103,7 @@ TEST(SchedulingTest, SingleThreadTest){
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
 
   //Run scheduling
-  InitAirport(1, 1, 5, "test/examples/example1.txt");
+  InitAirport(1, 1, 5, "test/examples/example1.txt", 0);
 
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 
@@ -129,7 +129,7 @@ TEST(SchedulingTest, MultiThreadTest){
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
 
   //Run scheduling
-  InitAirport(2, 2, 5, "test/examples/example1.txt");
+  InitAirport(2, 2, 5, "test/examples/example1.txt", 0);
 
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 
@@ -155,7 +155,7 @@ TEST(SchedulingTest, CrashTest){
   cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
 
   //Run scheduling
-  InitAirport(1, 1, 5, "test/examples/crash.txt");
+  InitAirport(1, 1, 5, "test/examples/crash.txt", 0);
 
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
 
