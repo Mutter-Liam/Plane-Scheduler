@@ -208,7 +208,7 @@ TEST(MetricTests, MetricTestOurs){
 TEST(MetricTests, MetricTestFIFO){
 
   fstream output("out.txt", ios::in|ios::out);
-  output.open();
+  output.open("out.txt");
   streambuf *coutbuf = std::cout.rdbuf();
   cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
   //Run scheduling
