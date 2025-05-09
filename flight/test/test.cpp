@@ -92,10 +92,10 @@ TEST(SchedulingTest, SingleThreadTest){
   //HAVEN'T ADDED EXPECTED VALUES YET, JUST PRINTS RESULT
 
   string logs[4] = {
-   "[ LANDING ] TID: 0F;ight: 1, ScheduledTime: 5, Runway: 0 Fuel: 9% LandingTime: 5 CompletionTime: 8",
-   "[ TAKEOFF ] TID: 0Flight: 3, ScheduledTime: 10, Runway: 0 Fuel: 10% TakeoffTime: 10 CompletionTime: 20",
-   "[ LANDING ] TID: 0F;ight: 4, ScheduledTime: 30, Runway: 0 Fuel: 20% LandingTime: 30 CompletionTime: 70",
-   "[ TAKEOFF ] TID: 0Flight: 2, ScheduledTime: 6, Runway: 0 Fuel: 40% TakeoffTime: 20 CompletionTime: 28"
+   "[ LANDING ] TID: 0 Flight: 1, ScheduledTime: 5, Runway: 0 Fuel: 9% LandingTime: 5 CompletionTime: 8",
+   "[ TAKEOFF ] TID: 0 Flight: 3, ScheduledTime: 10, Runway: 0 Fuel: 10% TakeoffTime: 10 CompletionTime: 20",
+   "[ LANDING ] TID: 0 Flight: 4, ScheduledTime: 30, Runway: 0 Fuel: 20% LandingTime: 30 CompletionTime: 70",
+   "[ TAKEOFF ] TID: 0 Flight: 2, ScheduledTime: 6, Runway: 0 Fuel: 40% TakeoffTime: 20 CompletionTime: 28"
   };    
   // capture out
   stringstream output;
@@ -119,10 +119,10 @@ TEST(SchedulingTest, MultiThreadTest){
   //HAVEN'T ADDED EXPECTED VALUES YET, JUST PRINTS RESULT
 
   string logs[4] = {
-    "[ LANDING ] TID: 0F;ight: 1, ScheduledTime: 5, Runway: 0 Fuel: 9% LandingTime: 5 CompletionTime: 8",
-    "[ LANDING ] TID: 0F;ight: 4, ScheduledTime: 30, Runway: 0 Fuel: 20% LandingTime: 30 CompletionTime: 70",
-    "[ TAKEOFF ] TID: 0Flight: 2, ScheduledTime: 6, Runway: 0 Fuel: 40% TakeoffTime: 20 CompletionTime: 28",
-    "[ TAKEOFF ] TID: 1Flight: 3, ScheduledTime: 10, Runway: 1 Fuel: 10% TakeoffTime: 10 CompletionTime: 20"};
+    "[ LANDING ] TID: 0 Flight: 1, ScheduledTime: 5, Runway: 0 Fuel: 9% LandingTime: 5 CompletionTime: 8",
+    "[ LANDING ] TID: 0 Flight: 4, ScheduledTime: 30, Runway: 0 Fuel: 20% LandingTime: 30 CompletionTime: 70",
+    "[ TAKEOFF ] TID: 0 Flight: 2, ScheduledTime: 6, Runway: 0 Fuel: 40% TakeoffTime: 20 CompletionTime: 28",
+    "[ TAKEOFF ] TID: 1 Flight: 3, ScheduledTime: 10, Runway: 1 Fuel: 10% TakeoffTime: 10 CompletionTime: 20"};
   // capture out
   stringstream output;
   streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
@@ -145,9 +145,9 @@ TEST(SchedulingTest, CrashTest){
   //HAVEN'T ADDED EXPECTED VALUES YET, JUST PRINTS RESULT
 
   string logs[3] = {
-    "[ LANDING ] TID: 0F;ight: 1, ScheduledTime: 0, Runway: 0 Fuel: 0% LandingTime: 0 CompletionTime: 10",
-    "[ LANDING ] TID: 0F;ight: 2, ScheduledTime: 0, Runway: 1 Fuel: 0% LandingTime: 0 CompletionTime: 10",
-    "[ LANDING ] TID: 0F;ight: 3, ScheduledTime: 0, Runway: 0 Fuel: 60% LandingTime: 10 CompletionTime: 20"
+    "[ LANDING ] TID: 0 Flight: 1, ScheduledTime: 0, Runway: 0 Fuel: 0% LandingTime: 0 CompletionTime: 10",
+    "[ LANDING ] TID: 0 Flight: 2, ScheduledTime: 0, Runway: 1 Fuel: 0% LandingTime: 0 CompletionTime: 10",
+    "[ LANDING ] TID: 0 Flight: 3, ScheduledTime: 0, Runway: 0 Fuel: 60% LandingTime: 10 CompletionTime: 20"
   };  
   // capture out
   stringstream output;
