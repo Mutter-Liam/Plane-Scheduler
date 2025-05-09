@@ -217,6 +217,7 @@ TEST(MetricTests, MetricTestFIFO){
 
   string line = "";
   output.seekg(0);
+  output.seekp(0);
   for (int i = 0; i < 12; ++i){
     getline(output, line);
     cout << line << endl;
