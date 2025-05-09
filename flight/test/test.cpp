@@ -195,8 +195,8 @@ TEST(MetricTests, MetricTestOurs){
   }
   string response = getline(output, line);
   string fuel_burn = getline(output, line);
-  double res_time = atof(response.substr(response.length() - 2));
-  double fuel_avg = atof(response.substr(response.length() - 2));
+  float res_time = atof(response.substr(response.length() - 2));
+  float fuel_avg = atof(fuel_burn.substr(fuel_burn.length() - 2));
 
   EXPECT_NEAR(4, res_time, 0.1);
   EXPECT_NEAR(21, fuel_avg, 0.1);
@@ -219,8 +219,8 @@ TEST(MetricTests, MetricTestFIFO){
   string fuel_burn = "";
   getline(output, line);
   getline(output, line);
-  double res_time = atof(response.substr(response.length() - 2));
-  double fuel_avg = atof(response.substr(response.length() - 2));
+  float res_time = atof(response.substr(response.length() - 2));
+  float fuel_avg = atof(fuel_burn.substr(fuel_burn.length() - 2));
 
   EXPECT_NEAR(7, res_time, 0.1);
   EXPECT_NEAR(18, fuel_avg, 0.1);
