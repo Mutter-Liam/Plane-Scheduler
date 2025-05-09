@@ -181,8 +181,7 @@ TEST(SchedulingTest, CrashTest){
 }
 
 TEST(MetricTests, MetricTestOurs){
-  fstream output("out.txt", ios::in|ios::out);
-  output.open("out.txt");
+  ofstream output("out.txt", ios::in|ios::out);
   streambuf *coutbuf = std::cout.rdbuf();
   cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
   //Run scheduling
@@ -207,8 +206,7 @@ TEST(MetricTests, MetricTestOurs){
 
 TEST(MetricTests, MetricTestFIFO){
 
-  fstream output("out.txt", ios::in|ios::out);
-  output.open("out.txt");
+  ofstream output("out.txt", ios::in|ios::out);
   streambuf *coutbuf = std::cout.rdbuf();
   cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
   //Run scheduling
