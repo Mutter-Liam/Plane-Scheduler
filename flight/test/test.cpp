@@ -106,7 +106,7 @@ TEST(SchedulingTest, SingleThreadTest){
   InitAirport(1, 1, 5, "test/examples/example1.txt", 0);
 
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
-
+  cout << output.str() << "\n";
   string line = "";
   int i = 0;
   getline(output, line);
