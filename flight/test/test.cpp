@@ -112,6 +112,8 @@ TEST(SchedulingTest, SingleThreadTest){
   getline(out, line);
   getline(out, line);
   getline(out, line);
+  getline(out, line);
+  getline(out, line);
   while (getline(out, line) && i < 4) {
     EXPECT_EQ(logs[i++], line);
   }
@@ -137,6 +139,8 @@ TEST(SchedulingTest, MultiThreadTest){
 
   cout.rdbuf(coutbuf);  // restore cout's original streambuf
   string line = "";
+  getline(output, line);
+  getline(output, line);
   getline(output, line);
   getline(output, line);
   getline(output, line);
@@ -168,10 +172,56 @@ TEST(SchedulingTest, CrashTest){
   getline(output, line);
   getline(output, line);
   getline(output, line);
+  getline(output, line);
+  getline(output, line);
   int i = 0;
   while (getline(output, line) && i < 3) {
     EXPECT_EQ(logs[i++], line);
   }
+}
+
+TEST(MetricTests, MetricTestOurs){
+
+  fstream output("out.txt");
+  streambuf *coutbuf = std::cout.rdbuf();
+  cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
+  //Run scheduling
+  InitAirport(1, 1, 5, "test/examples/example1.txt", 0);
+
+  cout.rdbuf(coutbuf);
+  string line = "";
+  while (int i = 0; i < 12; ++i){
+    getline(output, line);
+  }
+  string response = getline(output, line);
+  string fuel_burn = getline(output, line);
+  double res_time = atof(response.substr(response.length() - 2));
+  double fuel_avg = atof(response.substr(response.length() - 2));
+
+  EXPECT_NEAR(4, res_time, 0.1)
+  EXPECT_NEAR(21, fuel_avg, 0.1)
+}
+
+TEST(MetricTests, MetricTestFIFO){
+
+  fstream output("out.txt");
+  streambuf *coutbuf = std::cout.rdbuf();
+  cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
+  //Run scheduling
+  InitAirport(1, 1, 5, "test/examples/example1.txt", 0);
+
+  cout.rdbuf(coutbuf);
+  string line = "";
+  while (int i = 0; i < 12; ++i){
+    getline(output, line);
+  }
+  string response = getline(output, line);
+  string fuel_burn = getline(output, line);
+  double res_time = atof(response.substr(response.length() - 2));
+  double fuel_avg = atof(response.substr(response.length() - 2));
+
+  EXPECT_NEAR(7, res_time, 0.1)
+  EXPECT_NEAR(18, fuel_avg, 0.1)
 }
 
 TEST(PCTest, Test1) {
