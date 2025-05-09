@@ -142,7 +142,7 @@ TEST(SchedulingTest, CrashTest){
   //Runs example2 with 1 producer and 1 consumer
   //HAVEN'T ADDED EXPECTED VALUES YET, JUST PRINTS RESULT
 
-  string logs[2] = {
+  string logs[3] = {
     "[ LANDING ] TID: 0F;ight: 1, ScheduledTime: 0, Runway: 0 Fuel: 0% LandingTime: 0 CompletionTime: 10",
     "[ LANDING ] TID: 0F;ight: 2, ScheduledTime: 0, Runway: 1 Fuel: 0% LandingTime: 0 CompletionTime: 10",
     "[ LANDING ] TID: 0F;ight: 3, ScheduledTime: 0, Runway: 0 Fuel: 60% LandingTime: 10 CompletionTime: 20"
