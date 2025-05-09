@@ -136,7 +136,7 @@ TEST(SchedulingTest, MultiThreadTest){
   cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
   string line = "";
   getline(output, line);
-  getline(output, line)
+  getline(output, line);
   int i = 0;
   while (getline(output, line) && i < 4) {
     EXPECT_TRUE(line.find(logs[i++]) != string::npos);
