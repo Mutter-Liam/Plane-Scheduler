@@ -212,7 +212,7 @@ TEST(MetricTests, MetricTestFIFO){
 
   cout.rdbuf(coutbuf);
   string line = "";
-  while (int i = 0; i < 12; ++i){
+  for (int i = 0; i < 12; ++i){
     getline(output, line);
   }
   string response = getline(output, line);
