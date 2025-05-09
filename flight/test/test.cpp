@@ -182,6 +182,7 @@ TEST(SchedulingTest, CrashTest){
 
 TEST(MetricTests, MetricTestOurs){
   ofstream output("out.txt", ios::in);
+  ifstream outin("out.txt");
   streambuf *coutbuf = std::cout.rdbuf();
   cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
   //Run scheduling
@@ -191,12 +192,12 @@ TEST(MetricTests, MetricTestOurs){
   string line = "";
   output.seekg(0);
   for (int i = 0; i < 12; ++i){
-    getline(output, line);
+    getline(outin, line);
   }
   string response = "";
   string fuel_burn = "";
-  getline(output, response);
-  getline(output, fuel_burn);
+  getline(outin, response);
+  getline(outin, fuel_burn);
   float res_time = stof(response.substr(response.length() - 2));
   float fuel_avg = stof(fuel_burn.substr(fuel_burn.length() - 2));
 
@@ -207,6 +208,7 @@ TEST(MetricTests, MetricTestOurs){
 TEST(MetricTests, MetricTestFIFO){
 
   ofstream output("out.txt", ios::in);
+  ifstream outin("out.txt");
   streambuf *coutbuf = std::cout.rdbuf();
   cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
   //Run scheduling
@@ -215,16 +217,15 @@ TEST(MetricTests, MetricTestFIFO){
   cout.rdbuf(coutbuf);
 
   string line = "";
-  output.seekg(0);
   output.seekp(0);
   for (int i = 0; i < 12; ++i){
-    getline(output, line);
+    getline(outin, line);
     cout << line << endl;
   }
   string response = "";
   string fuel_burn = "";
-  getline(output, response);
-  getline(output, fuel_burn);
+  getline(outin, response);
+  getline(outin, fuel_burn);
   cout << response << endl;
   cout << fuel_burn << endl;
   cout << response.substr(response.length() - 2) << endl;
