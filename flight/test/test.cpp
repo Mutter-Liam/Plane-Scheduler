@@ -96,7 +96,7 @@ TEST(SchedulingTest, SingleThreadTest){
    "[ TAKEOFF ] TID: 0Flight: 3, ScheduledTime: 10, Runway: 0 Fuel: 10% TakeoffTime: 10 CompletionTime: 20",
    "[ LANDING ] TID: 0F;ight: 4, ScheduledTime: 30, Runway: 0 Fuel: 20% LandingTime: 30 CompletionTime: 70",
    "[ TAKEOFF ] TID: 0Flight: 2, ScheduledTime: 6, Runway: 0 Fuel: 40% TakeoffTime: 20 CompletionTime: 28"
-  }    
+  };    
   // capture out
   stringstream output;
   streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
