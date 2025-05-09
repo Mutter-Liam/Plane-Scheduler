@@ -128,8 +128,8 @@ TEST(SchedulingTest, MultiThreadTest){
     "[ TAKEOFF ] TID: 1 Flight: 3, ScheduledTime: 10, Runway: 1 Fuel: 10% TakeoffTime: 10 CompletionTime: 20"};
   // capture out
   stringstream output;
-  streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
-  cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
+  fstream output("out.txt");
+  cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!             
 
   //Run scheduling
   InitAirport(2, 2, 5, "test/examples/example1.txt", 0);
@@ -153,12 +153,11 @@ TEST(SchedulingTest, CrashTest){
     "[ LANDING ] TID: 0 Flight: 1, ScheduledTime: 0, Runway: 0 Fuel: 0% LandingTime: 0 CompletionTime: 10",
     "[ LANDING ] TID: 0 Flight: 2, ScheduledTime: 0, Runway: 1 Fuel: 0% LandingTime: 0 CompletionTime: 10",
     "[ LANDING ] TID: 0 Flight: 3, ScheduledTime: 0, Runway: 0 Fuel: 60% LandingTime: 10 CompletionTime: 20"
-  };  
-  // capture out
+  }; 
+  
   stringstream output;
-  streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
-  cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
-
+  fstream output("out.txt");
+  cout.rdbuf(output.rdbuf()); //redirect std::cout to out.txt!     
   //Run scheduling
   InitAirport(1, 1, 5, "test/examples/crash.txt", 0);
 
