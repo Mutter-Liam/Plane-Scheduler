@@ -98,21 +98,21 @@ TEST(SchedulingTest, SingleThreadTest){
    "[ TAKEOFF ] TID: 0 Flight: 2, ScheduledTime: 6, Runway: 0 Fuel: 40% TakeoffTime: 20 CompletionTime: 28"
   };    
   // capture out
-  stringstream output;
-  streambuf *oldCoutStreamBuf = cout.rdbuf();  // save cout's streambuf
-  cout.rdbuf(output.rdbuf());                  // redirect cout to stringstream
+  fstream out("out.txt");
+  streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+  cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 
   //Run scheduling
   InitAirport(1, 1, 5, "test/examples/example1.txt", 0);
 
-  cout.rdbuf(oldCoutStreamBuf);  // restore cout's original streambuf
-  cout << output.str() << "\n";
+  cout.rdbuf(coutbuf);  // restore cout's original streambuf
+
   string line = "";
   int i = 0;
-  getline(output, line);
-  getline(output, line);
-  getline(output, line);
-  while (getline(output, line) && i < 4) {
+  getline(out, line);
+  getline(out, line);
+  getline(out, line);
+  while (getline(out, line) && i < 4) {
     EXPECT_EQ(logs[i++], line);
   }
 }
