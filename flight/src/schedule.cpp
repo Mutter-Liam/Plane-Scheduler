@@ -12,29 +12,27 @@ int max_items; // total number of items in the ledger
 int con_items; // total number of items consumed
 
 /**
- * @brief Initializes a banking system with a specified number of
- *      - p producer threads
- *      - c consumer threads
- *      - size of the bounded buffer
- *      - ledger file
+ * @brief Initializes an airport simulation with a specified number of 
+ *        producer and consumer threads.
  *
- * This function sets up a banking. It then creates and
- * initializes the necessary threads to perform banking operations concurrently.
- * After all threads have completed their tasks, it prints the final state of
- * the bank's accounts.
+ * @details
+ * This function sets up an airport simulation, initializing the airport object 
+ * and a bounded buffer for scheduling. It then loads flight schedules from 
+ * a file and creates the necessary producer and consumer threads to manage 
+ * flight operations. Once all threads complete their tasks, it prints the 
+ * final state of the airport and releases allocated memory.
  *
  * @attention
- * - Initialize the bank with 10 accounts.
- * - If `load_ledger()` fails, exit and free allocated memory.
- * - Be careful how you pass the thread ID to ensure the value does not change.
- * - Don't forget to join all created threads.
+ * - Initializes the airport with two runways.
+ * - If `load_schedule()` fails, exits safely and frees allocated memory.
+ * - Ensures correct passing of thread IDs to avoid unintended value changes.
+ * - Joins all created threads before exiting.
  *
  * @param p The number of producer threads.
  * @param c The number of consumer threads.
- * @param size The size of the bounded buffer.
- * @param filename The name of the file containing the ledger data.
+ * @param size The size of the bounded buffer for scheduling.
+ * @param filename The name of the file containing flight schedule data.
  * @return void
- *
  */
 void InitAirport(int p, int c, int size, char *filename) {
   airport = new Airport(2);
@@ -67,26 +65,32 @@ void InitAirport(int p, int c, int size, char *filename) {
 }
 
 /**
- * @brief Loads a ledger from a specified file into the banking system.
+ * @brief Loads a flight schedule from a specified file into the airport system.
  *
- * This function reads transaction data from the given file, where each line
- * represents a ledger entry. The format is as follows:
- *   - Account (int): the account number
- *   - Other (int): for transfers, the other account number; otherwise not used
- *   - Amount (int): the amount to deposit, withdraw, or transfer
- *   - Mode (Enum): 0 for deposit, 1 for withdraw, 2 for transfer
- * The function then creates ledger entries and appends them to the ledger list
- * of the banking system.
+ * @details
+ * This function reads flight scheduling data from the given file, where each 
+ * line represents a flight request. The format is as follows:
+ *   - Flight ID (int): the unique identifier for the flight.
+ *   - Fuel Percentage (int): the remaining fuel level of the flight.
+ *   - Scheduled Time (int): the originally scheduled departure or landing time.
+ *   - Time Spent On Runway (int): the estimated time needed on the runway.
+ *   - Request Time (int): when the flight requested a runway.
+ *   - Mode (Enum): 0 for takeoff, 1 for landing.
+ *
+ * The function processes these entries, adjusting for emergency landings, 
+ * runway availability, and flight prioritization based on fuel levels and 
+ * scheduled timing. The finalized schedule is organized and stored for execution.
  *
  * @attention
  * - If the file cannot be opened, the function returns -1, indicating failure.
- * - The function expects a specific file format as indicated above.
- * - Each line in the file corresponds to a ledger entry.
- * - The ledgerID starts with 0.
+ * - The function expects a specific file format as described above.
+ * - Emergency landings are prioritized based on fuel levels.
+ * - Flights are scheduled to optimize runway usage.
  *
- * @param filename The name of the file containing the ledger data.
+ * @param filename The name of the file containing flight schedule data.
  * @return 0 on success, -1 on failure to open the file.
  */
+
 int load_schedule(char *filename) {
 
   ifstream input(filename);
