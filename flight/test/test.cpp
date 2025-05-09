@@ -215,8 +215,10 @@ TEST(MetricTests, MetricTestFIFO){
   for (int i = 0; i < 12; ++i){
     getline(output, line);
   }
-  string response = getline(output, line);
-  string fuel_burn = getline(output, line);
+  string response = "";
+  string fuel_burn = "";
+  getline(output, line);
+  getline(output, line);
   double res_time = atof(response.substr(response.length() - 2));
   double fuel_avg = atof(response.substr(response.length() - 2));
 
