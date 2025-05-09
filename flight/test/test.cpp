@@ -195,8 +195,8 @@ TEST(MetricTests, MetricTestOurs){
   }
   string response = "";
   string fuel_burn = "";
-  getline(output, line);
-  getline(output, line);
+  getline(output, response);
+  getline(output, fuel_burn);
   float res_time = atof(response.substr(response.length() - 2));
   float fuel_avg = atof(fuel_burn.substr(fuel_burn.length() - 2));
 
@@ -219,8 +219,8 @@ TEST(MetricTests, MetricTestFIFO){
   }
   string response = "";
   string fuel_burn = "";
-  getline(output, line);
-  getline(output, line);
+  getline(output, response);
+  getline(output, fuel_burn);
   float res_time = atof(response.substr(response.length() - 2));
   float fuel_avg = atof(fuel_burn.substr(fuel_burn.length() - 2));
 
