@@ -221,6 +221,10 @@ TEST(MetricTests, MetricTestFIFO){
   string fuel_burn = "";
   getline(output, response);
   getline(output, fuel_burn);
+  cout << response << endl;
+  cout << fuel_burn << endl;
+  cout << response.substr(response.length() - 2) << endl;
+  cout << fuel_burn.substr(fuel_burn.length() - 2) << endl;
   float res_time = stof(response.substr(response.length() - 2));
   float fuel_avg = stof(fuel_burn.substr(fuel_burn.length() - 2));
 
