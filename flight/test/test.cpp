@@ -40,7 +40,7 @@ TEST(Airport, TestLogs) {
   // expected logs ex
   string logs[3]{LANDING_MSG(0, 1, 0, 0, 90, 10, 10),
                  TAKEOFF_MSG(0, 2, 0, 0, 90, 10, 20),
-                 LANDING_MSG(0, 3, 10,0, 90, 10, 40)};
+                 LANDING_MSG(0, 3, 0, 0, 90, 10, 40)};
 
   int i = 0;
   airport_t = new Airport(2);
