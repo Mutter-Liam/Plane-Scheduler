@@ -198,8 +198,8 @@ TEST(MetricTests, MetricTestOurs){
   double res_time = atof(response.substr(response.length() - 2));
   double fuel_avg = atof(response.substr(response.length() - 2));
 
-  EXPECT_NEAR(4, res_time, 0.1)
-  EXPECT_NEAR(21, fuel_avg, 0.1)
+  EXPECT_NEAR(4, res_time, 0.1);
+  EXPECT_NEAR(21, fuel_avg, 0.1);
 }
 
 TEST(MetricTests, MetricTestFIFO){
@@ -220,8 +220,8 @@ TEST(MetricTests, MetricTestFIFO){
   double res_time = atof(response.substr(response.length() - 2));
   double fuel_avg = atof(response.substr(response.length() - 2));
 
-  EXPECT_NEAR(7, res_time, 0.1)
-  EXPECT_NEAR(18, fuel_avg, 0.1)
+  EXPECT_NEAR(7, res_time, 0.1);
+  EXPECT_NEAR(18, fuel_avg, 0.1);
 }
 
 TEST(PCTest, Test1) {
